@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  
   try {
     // Decode the token using jose
     const { payload } = await jwtVerify(
