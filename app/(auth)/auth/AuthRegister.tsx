@@ -20,7 +20,7 @@ import axios from "axios";
 // مخطط التحقق باستخدام Zod
 const registerSchema = z.object({
   name: z.string().min(1, "الاسم مطلوب").nonempty("لا يمكن ترك الاسم فارغاً"),
-  phone: z.string().min(10, "يجب إدخال رقم الهاتف"),
+  phone: z.string().min(2, "يجب إدخال رقم الهاتف"),
   password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
   gender: z.enum(["male", "female"], { required_error: "الجنس مطلوب" }),
   region: z.string().nonempty("المنطقة مطلوبة"),
@@ -248,7 +248,7 @@ const AuthRegister = ({
               mb="5px"
               mt="25px"
             >
-              هل ترغب في الاشتراك في تحدي القراءة؟
+              التحدي القرائي؟
             </Typography>
             <Controller
               name="readingChallenge"
