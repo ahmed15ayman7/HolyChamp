@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Typography,
   Button,
@@ -20,6 +20,7 @@ import axios from "axios";
 // مخطط التحقق باستخدام Zod
 const registerSchema = z.object({
   name: z.string().min(1, "الاسم مطلوب").nonempty("لا يمكن ترك الاسم فارغاً"),
+  title: z.string().optional(),
   phone: z.string().min(2, "يجب إدخال رقم الهاتف"),
   password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
   gender: z.enum(["male", "female"], { required_error: "الجنس مطلوب" }),
@@ -46,7 +47,7 @@ const AuthRegister = ({
   setIsFe,
 }: RegisterType) => {
   const router = useRouter();
-
+  let [isFemale, setIsFemale] = useState(false);
   const {
     control,
     handleSubmit,
@@ -56,6 +57,7 @@ const AuthRegister = ({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
+      title: "",
       phone: "",
       password: "",
       gender: "male",
@@ -118,13 +120,49 @@ const AuthRegister = ({
               variant="subtitle1"
               fontWeight={600}
               component="label"
-              htmlFor="name"
+              htmlFor="gender"
+              mb="5px"
+              mt="25px"
+            >
+              الجنس
+            </Typography>
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth error={!!errors.gender}>
+                  <InputLabel>الجنس</InputLabel>
+                  <Select
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      e.target.value === "female"
+                        ? setIsFemale(true)
+                        : setIsFemale(false);
+                    }}
+                    variant="outlined"
+                    fullWidth
+                  >
+                    <MenuItem value="male">ذكر</MenuItem>
+                    <MenuItem value="female">أنثى</MenuItem>
+                  </Select>
+                  <FormHelperText>{errors.gender?.message}</FormHelperText>
+                </FormControl>
+              )}
+            />
+          </div>
+          <div>
+            <Typography
+              variant="subtitle1"
+              fontWeight={600}
+              component="label"
+              htmlFor={isFemale ? "title" : "name"}
               mb="5px"
             >
               الاسم
             </Typography>
             <Controller
-              name="name"
+              name={isFemale ? "title" : "name"}
               control={control}
               render={({ field }) => (
                 <TextField
@@ -137,7 +175,58 @@ const AuthRegister = ({
               )}
             />
           </div>
-          <div className=" col-span-2">
+          {isFemale && (
+            <div>
+              <Typography
+                variant="subtitle1"
+                fontWeight={600}
+                component="label"
+                htmlFor="name"
+                mb="5px"
+              >
+                اللقب
+              </Typography>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    variant="outlined"
+                    fullWidth
+                    error={!!errors.name}
+                    helperText={errors.name?.message}
+                  />
+                )}
+              />
+            </div>
+          )}
+          <div>
+            <Typography
+              variant="subtitle1"
+              fontWeight={600}
+              component="label"
+              htmlFor="region"
+              mb="5px"
+              mt="25px"
+            >
+              المنطقة
+            </Typography>
+            <Controller
+              name="region"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  variant="outlined"
+                  fullWidth
+                  error={!!errors.region}
+                  helperText={errors.region?.message}
+                />
+              )}
+            />
+          </div>
+          <div className={isFemale ? "" : " col-span-2"}>
             <Typography
               variant="subtitle1"
               fontWeight={600}
@@ -188,57 +277,7 @@ const AuthRegister = ({
               )}
             />
           </div>
-          <div>
-            <Typography
-              variant="subtitle1"
-              fontWeight={600}
-              component="label"
-              htmlFor="gender"
-              mb="5px"
-              mt="25px"
-            >
-              الجنس
-            </Typography>
-            <Controller
-              name="gender"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth error={!!errors.gender}>
-                  <InputLabel>الجنس</InputLabel>
-                  <Select {...field} variant="outlined" fullWidth>
-                    <MenuItem value="male">ذكر</MenuItem>
-                    <MenuItem value="female">أنثى</MenuItem>
-                  </Select>
-                  <FormHelperText>{errors.gender?.message}</FormHelperText>
-                </FormControl>
-              )}
-            />
-          </div>
-          <div>
-            <Typography
-              variant="subtitle1"
-              fontWeight={600}
-              component="label"
-              htmlFor="region"
-              mb="5px"
-              mt="25px"
-            >
-              المنطقة
-            </Typography>
-            <Controller
-              name="region"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  variant="outlined"
-                  fullWidth
-                  error={!!errors.region}
-                  helperText={errors.region?.message}
-                />
-              )}
-            />
-          </div>
+
           <div className=" col-span-2">
             <Typography
               variant="subtitle1"
