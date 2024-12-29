@@ -22,7 +22,7 @@ const registerSchema = z.object({
   name: z.string().min(1, "الاسم مطلوب").nonempty("لا يمكن ترك الاسم فارغاً"),
   title: z.string().optional(),
   phone: z.string().min(2, "يجب إدخال رقم الهاتف"),
-  password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
+  password: z.string().min(3, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
   gender: z.enum(["male", "female"], { required_error: "الجنس مطلوب" }),
   region: z.string().nonempty("المنطقة مطلوبة"),
   readingChallenge: z.string().min(0, { message: "يرجي كتابة عدد" }),

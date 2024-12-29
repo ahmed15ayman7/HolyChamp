@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -11,12 +10,22 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { IconPhone, IconUser } from "@tabler/icons-react";
+import { IconPhone, IconUser, IconSettings } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { getUserData, SignOut } from "@/lib/actions/user.action";
+import ProfileDialog from "./ProfileDialog";
+import axios from "axios";
 
 const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
   const [anchorEl2, setAnchorEl2] = useState(null);
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [userData, setUserData] = useState({
+    id: 10000000,
+    name: "Guest",
+    phone: "0123456789",
+    region: "",
+    password: "",
+  });
 
   const handleClick2 = (event: any) => {
     setAnchorEl2(event.currentTarget);
@@ -25,18 +34,53 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
     setAnchorEl2(null);
   };
 
+  const handleDialogOpen = () => {
+    setDialogOpen(true);
+  };
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleSave = async (updatedData: {
+    id: number;
+    name: string;
+    phone: string;
+    region: string;
+    password: string;
+  }) => {
+    try {
+      let response = await axios.put("/api/users", updatedData);
+      setUserData({
+        id: response.data?.id,
+        name: response.data?.name,
+        phone: response.data?.phone,
+        password: response.data?.password,
+        region: response.data.region,
+      });
+      handleDialogClose();
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
+
   // Fetch user data using React Query
   const {
-    data: userData,
+    data: userData2,
     isLoading,
     isFetched,
     isError,
-  } = useQuery({ queryKey: ["userData"], queryFn: () => getUserData() });
-  const [userName, setname] = useState("Guest");
-  const [userEmail, setemail] = useState("guest@example.com");
+  } = useQuery({
+    queryKey: ["userData"],
+    queryFn: () => getUserData(),
+  });
   useEffect(() => {
-    setname(userData?.name || "Guest");
-    setemail(userData?.phone || "0123456789");
+    setUserData({
+      id: userData2?.id || 10000,
+      name: userData2?.name || "Guest",
+      phone: userData2?.phone || "0123456789",
+      password: "",
+      region: userData2?.region,
+    });
     userData && setisLogin && setisLogin(true);
   }, [isLoading]);
 
@@ -57,7 +101,7 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
       >
         <Avatar
           src=""
-          alt={`${userName}`}
+          alt={`${userData.name}`}
           sx={{
             width: 35,
             height: 35,
@@ -66,14 +110,10 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
           }}
         />
       </IconButton>
-      {/* ------------------------------------------- */}
-      {/* Profile Dropdown */}
-      {/* ------------------------------------------- */}
       <Menu
         id="profile-menu"
         anchorEl={anchorEl2}
         keepMounted
-        className="bg-black/20 text-white"
         open={Boolean(anchorEl2)}
         onClose={handleClose2}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
@@ -81,7 +121,7 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
         sx={{
           "& .MuiMenu-paper": {
             width: "200px",
-            background: "#1E3A8A",
+            background: "#a5960a",
           },
         }}
       >
@@ -89,21 +129,27 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
           <ListItemIcon>
             <IconUser width={20} color={"white"} />
           </ListItemIcon>
-          <ListItemText primary={userName} className="text-white" />{" "}
-          {/* Display user name */}
+          <ListItemText primary={userData.name} />
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <IconPhone width={20} color={"white"} />
           </ListItemIcon>
-          <ListItemText primary={userEmail} className="text-white" />{" "}
-          {/* Display user email */}
+          <ListItemText primary={userData.phone} />
         </MenuItem>
+        {!isLoading && userData2 && (
+          <MenuItem onClick={handleDialogOpen}>
+            <ListItemIcon>
+              <IconSettings width={20} color={"white"} />
+            </ListItemIcon>
+            <ListItemText primary="إعداد الملف الشخصي" />
+          </MenuItem>
+        )}
         <Box mt={1} py={1} px={2}>
           <Button
             href="/login"
             variant="outlined"
-            className="bg-[#ffffff]  hover:bg-[#ffffff90] text-gray-900 font-bold border-gray-900 border shadow-md cursor-pointer"
+            className="bg-[#ffffff] hover:bg-[#ffffff90] text-gray-900 font-bold border-gray-900 border shadow-md cursor-pointer"
             component={Link}
             onClick={async () => {
               await SignOut();
@@ -114,6 +160,20 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
           </Button>
         </Box>
       </Menu>
+      {!isLoading && userData2 && (
+        <ProfileDialog
+          open={isDialogOpen}
+          onClose={handleDialogClose}
+          onSave={handleSave}
+          initialData={{
+            id: userData2?.id || 10000,
+            name: userData2?.name || "Guest",
+            phone: userData2?.phone || "0123456789",
+            password: "",
+            region: userData2?.region,
+          }}
+        />
+      )}
     </Box>
   );
 };

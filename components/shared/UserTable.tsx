@@ -17,7 +17,7 @@ import {
   IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const UsersList = () => {
   const [users, setUsers] = useState<User[]>([]);

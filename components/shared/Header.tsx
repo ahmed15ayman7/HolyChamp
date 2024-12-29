@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState ,useEffect} from "react";
 import Link from "next/link";
 import {
   AppBar,
   Toolbar,
   IconButton,
   Box,
-  Menu,
-  MenuItem,
   Tooltip,
   Drawer,
   List,
@@ -25,14 +23,16 @@ import { User } from "@prisma/client";
 
 interface NavItem {
   title: string;
-  href: string;
+  href?: string;
+  subItems?: NavItem[];
 }
 
 const Header: React.FC = () => {
   const [user, setUser] = useState<User>();
   const [drawerOpen, setDrawerOpen] = useState(false); // For Drawer on mobile
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null); // For handling hover on nav items
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // Check for mobile screen size
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const getUser = async () => {
     const userData = await getUserData();
@@ -42,18 +42,25 @@ const Header: React.FC = () => {
   const navItems1: NavItem[] = [
     { title: "الرئيسية", href: "/" },
     { title: "التقارير القرائية", href: "/reading-reports" },
-    { title: "إضافة كتاب", href: "/add-book" },
+    {
+      title: "إضافة كتاب",
+      href: "/add-book",
+    },
     { title: "فليتنافس المتنافسون", href: "/competitions" },
     { title: "سموط المعارف", href: "/articles" },
   ];
 
   const navItems2: NavItem[] = [
-    { title: "الرئيسية", href: "/" },
-    { title: "الادارة", href: "/admin" },
-    { title: "المقالات", href: "/articles-admin" },
-    { title: " المقالات المعلقة", href: "/articles-pending" },
+    { title: "الرئيسية",subItems:[{ title: "الرئيسية", href: "/" },{ title: "التقارير القرائية", href: "/reading-reports" },
+    {
+      title: "إضافة كتاب",
+      href: "/add-book",
+    },
+    { title: "فليتنافس المتنافسون", href: "/competitions" },
+    { title: "سموط المعارف", href: "/articles" },]},
+    { title: "الادارة",subItems:[{ title: "الادارة", href: "/admin"}
+    ,{ title: "المقالات", href: "/articles-admin" },{ title: " المقالات المعلقة", href: "/articles-pending" },] },    
   ];
-
   useEffect(() => {
     getUser();
   }, []);
@@ -83,8 +90,72 @@ const Header: React.FC = () => {
           </Tooltip>
         </Link>
 
-        {/* Navigation Links or Drawer for Mobile */}
-        {isMobile ? (
+        {/* Navigation Links */}
+        {!isMobile && (
+          <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+            {navItems.map((item) => (
+              <Box
+                key={item.title}
+                onMouseEnter={() => setHoveredItem(item.title)}
+                onMouseLeave={() => setHoveredItem(null)}
+                sx={{ position: "relative" }}
+              >
+                <Link href={item.href || "#"} passHref>
+                  <Tooltip title={item.title} arrow>
+                    <Box
+                      component="p"
+                      sx={{
+                        color: "#ffffff",
+                        textDecoration: "none",
+                        fontSize: "1rem",
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      {item.title}
+                    </Box>
+                  </Tooltip>
+                </Link>
+                {item.subItems && hoveredItem === item.title && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      backgroundColor: "#ffffff",
+                      color: "#000",
+                      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                      borderRadius: "4px",
+                      zIndex: 1000,
+                    }}
+                  >
+                    {item.subItems.map((subItem) => (
+                      <Link
+                        key={subItem.title}
+                        href={subItem.href || "#"}
+                        passHref
+                      >
+                        <Box
+                          sx={{
+                            padding: "8px 16px",
+                            fontSize: "0.9rem",
+                            "&:hover": { backgroundColor: "#f0f0f0" },
+                          }}
+                        >
+                          {subItem.title}
+                        </Box>
+                      </Link>
+                    ))}
+                  </Box>
+                )}
+              </Box>
+            ))}
+            <Profile />
+          </Box>
+        )}
+
+        {/* Drawer for Mobile */}
+        {isMobile && (
           <>
             <div className="flex gap-2">
               <Profile />
@@ -117,43 +188,33 @@ const Header: React.FC = () => {
                 </IconButton>
                 <List>
                   {navItems.map((item) => (
-                    <ListItem
-                      key={item.title}
-                      onClick={() => setDrawerOpen(false)}
-                    >
-                      <Link href={item.href} passHref>
+                    <ListItem key={item.title}>
+                      <Link href={item.href || "#"} passHref>
                         <ListItemText
                           primary={item.title}
                           sx={{ color: "#ffffff", textAlign: "right" }}
                         />
                       </Link>
+                      {item.subItems && (
+                        <List sx={{ pl: 2 }}>
+                          {item.subItems.map((subItem) => (
+                            <ListItem key={subItem.title}>
+                              <Link href={subItem.href || "#"} passHref>
+                                <ListItemText
+                                  primary={subItem.title}
+                                  sx={{ color: "#ffffff", textAlign: "right" }}
+                                />
+                              </Link>
+                            </ListItem>
+                          ))}
+                        </List>
+                      )}
                     </ListItem>
                   ))}
                 </List>
               </Box>
             </Drawer>
           </>
-        ) : (
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} passHref>
-                <Tooltip title={item.title} arrow>
-                  <Box
-                    component="p"
-                    sx={{
-                      color: "#ffffff",
-                      textDecoration: "none",
-                      fontSize: "1rem",
-                      "&:hover": { textDecoration: "underline" },
-                    }}
-                  >
-                    {item.title}
-                  </Box>
-                </Tooltip>
-              </Link>
-            ))}
-            <Profile />
-          </Box>
         )}
       </Toolbar>
     </AppBar>
