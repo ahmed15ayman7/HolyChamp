@@ -25,7 +25,7 @@ const registerSchema = z.object({
   password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
   gender: z.enum(["male", "female"], { required_error: "الجنس مطلوب" }),
   region: z.string().nonempty("المنطقة مطلوبة"),
-  readingChallenge: z.enum(["yes", "no"], { message: "يرجي الإجابه" }),
+  readingChallenge: z.string().min(0, { message: "يرجي كتابة عدد" }),
   isPreviousParticipant: z.enum(["yes", "no"], { message: "يرجي الإجابه" }),
 });
 
@@ -62,7 +62,7 @@ const AuthRegister = ({
       password: "",
       gender: "male",
       region: "",
-      readingChallenge: "no",
+      readingChallenge: "0",
       isPreviousParticipant: "no",
     },
   });
@@ -71,7 +71,10 @@ const AuthRegister = ({
     const loadingToastId = toast.loading("جارٍ تسجيل المستخدم...");
 
     try {
-      const res = await axios.post("/api/register", values);
+      const res = await axios.post("/api/register", {
+        ...values,
+        readingChallenge: +values.readingChallenge,
+      });
 
       if (res.status === 201) {
         toast.update(loadingToastId, {
@@ -287,21 +290,20 @@ const AuthRegister = ({
               mb="5px"
               mt="25px"
             >
-              التحدي القرائي؟
+              التحدي القرائي
             </Typography>
             <Controller
               name="readingChallenge"
               control={control}
               render={({ field }) => (
-                <FormControl fullWidth error={!!errors.readingChallenge}>
-                  <Select {...field} variant="outlined">
-                    <MenuItem value={"yes"}>نعم</MenuItem>
-                    <MenuItem value={"no"}>لا</MenuItem>
-                  </Select>
-                  <FormHelperText>
-                    {errors.readingChallenge?.message}
-                  </FormHelperText>
-                </FormControl>
+                <TextField
+                  {...field}
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  error={!!errors.readingChallenge}
+                  helperText={errors.readingChallenge?.message}
+                />
               )}
             />
           </div>
