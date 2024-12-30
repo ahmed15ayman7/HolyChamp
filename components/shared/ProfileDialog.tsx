@@ -15,6 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const updateUserSchema = z.object({
   id: z.number().min(1, " مطلوب"),
   name: z.string().min(1, "الاسم مطلوب"),
+  title: z.string().optional(),
+  gender: z.string().min(1, "الجنس مطلوب"),
   phone: z.string().min(3, "رقم الهاتف يجب أن يكون مكونًا من 10 أرقام"),
   region: z.string().min(1, "المنطقة مطلوبة"),
   password: z
@@ -28,16 +30,20 @@ interface ProfileDialogProps {
   onSave: (data: {
     id: number;
     name: string;
+    title?: string;
     phone: string;
     region: string;
     password: string;
+    gender: string;
   }) => void;
   initialData: {
     id: number;
     name: string;
+    title: string;
     phone: string;
     region: string;
     password: string;
+    gender: string;
   };
 }
 
@@ -71,7 +77,12 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({
             render={({ field }) => <input {...field} type="hidden" />}
           />
           <Controller
-            name="name"
+            name="gender"
+            control={control}
+            render={({ field }) => <input {...field} type="hidden" />}
+          />
+          <Controller
+            name={initialData.gender === "female" ? "title" : "name"}
             control={control}
             render={({ field }) => (
               <TextField
@@ -84,6 +95,22 @@ const ProfileDialog: React.FC<ProfileDialogProps> = ({
               />
             )}
           />
+          {initialData.gender === "female" && (
+            <Controller
+              name={"name"}
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  margin="dense"
+                  label="اللقب"
+                  fullWidth
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
+              )}
+            />
+          )}
           <Controller
             name="phone"
             control={control}

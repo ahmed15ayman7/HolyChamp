@@ -69,6 +69,7 @@ export async function POST(request: Request) {
       JSON.stringify({
         id: user.id,
         name: user.name,
+        title: user.title,
         phone: user.phone,
         gender: user.gender,
         region: user.region,

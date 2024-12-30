@@ -22,6 +22,7 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
   const [userData, setUserData] = useState({
     id: 10000000,
     name: "Guest",
+    title: "Guest",
     phone: "0123456789",
     region: "",
     password: "",
@@ -44,6 +45,7 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
   const handleSave = async (updatedData: {
     id: number;
     name: string;
+    title?: string;
     phone: string;
     region: string;
     password: string;
@@ -53,6 +55,7 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
       setUserData({
         id: response.data?.id,
         name: response.data?.name,
+        title: response.data?.title,
         phone: response.data?.phone,
         password: response.data?.password,
         region: response.data.region,
@@ -76,10 +79,14 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
   useEffect(() => {
     setUserData({
       id: userData2?.id || 10000,
-      name: userData2?.name || "Guest",
+      name:
+        userData2?.gender == "female"
+          ? userData2?.title || userData2?.name || "لا يوجد اسم"
+          : userData2?.name || "Guest",
       phone: userData2?.phone || "0123456789",
       password: "",
       region: userData2?.region,
+      title: userData2?.title || "",
     });
     userData && setisLogin && setisLogin(true);
   }, [isLoading]);
@@ -170,7 +177,9 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
             name: userData2?.name || "Guest",
             phone: userData2?.phone || "0123456789",
             password: "",
+            gender: userData2?.gender,
             region: userData2?.region,
+            title: userData2?.title || "",
           }}
         />
       )}
