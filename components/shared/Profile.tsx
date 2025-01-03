@@ -136,20 +136,31 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
           <ListItemIcon>
             <IconUser width={20} color={"white"} />
           </ListItemIcon>
-          <ListItemText primary={userData.name} />
+          <ListItemText className="text-white" primary={userData.name} />
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <IconPhone width={20} color={"white"} />
           </ListItemIcon>
-          <ListItemText primary={userData.phone} />
+          <ListItemText className="text-white" primary={userData.phone} />
         </MenuItem>
         {!isLoading && userData2 && (
           <MenuItem onClick={handleDialogOpen}>
             <ListItemIcon>
               <IconSettings width={20} color={"white"} />
             </ListItemIcon>
-            <ListItemText primary="إعداد الملف الشخصي" />
+            <ListItemText className="text-white" primary="إعداد الملف الشخصي" />
+          </MenuItem>
+        )}
+        {!isLoading && userData2 && (
+          <MenuItem>
+            <ListItemIcon>
+              <IconSettings width={20} color={"white"} />
+            </ListItemIcon>
+            <ListItemText
+              className="text-white"
+              primary={`الفوائت ${userData2.missedPages || 0}`}
+            />
           </MenuItem>
         )}
         <Box mt={1} py={1} px={2}>

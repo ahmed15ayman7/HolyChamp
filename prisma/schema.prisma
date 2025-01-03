@@ -35,18 +35,18 @@ model Book {
 }
 
 model User {
-  id                    Int     @id @default(autoincrement())
+  id                    Int           @id @default(autoincrement())
   name                  String
   title                 String?
-  phone                 String  @unique
+  phone                 String        @unique
   password              String
   gender                String
   region                String
   readingChallenge      Int
   isPreviousParticipant Boolean
-  role                  String  @default("user") // Default role is "user"
-
-  DailyReport DailyReport[]
+  role                  String        @default("user") // Default role is "user"
+  missedPages           Int           @default(0) // الصفحات الفائتة
+  DailyReport           DailyReport[]
 
   Article Article[]
 

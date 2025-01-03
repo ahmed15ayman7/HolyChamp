@@ -13,6 +13,11 @@ import {
   InputLabel,
   Tooltip,
   CircularProgress,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { getUserData } from "@/lib/actions/user.action";
@@ -59,12 +64,27 @@ const ReportForm = ({
   });
 
   // Fetch User Data
+  const [reports, setReports] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await axios.get(
+          `/api/finished-books?userId=${user?.id}`
+        );
+        setReports(response.data);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      }
+    };
+
+    if (user?.id) fetchReports();
+  }, [user]);
   const getUser = async () => {
     const userData = await getUserData();
     setUser(userData);
   };
 
-  // Fetch Books for the User
   const fetchBooks = async () => {
     if (!user) return setFetchTrigger((prev) => prev + 1);
     try {
@@ -186,17 +206,11 @@ const ReportForm = ({
             </FormControl>
           </Tooltip>
 
-          {/* Notes Field */}
-          <Tooltip title="الملاحظات" arrow>
-            <TextField
-              {...register("notes")}
-              label="الملاحظات"
-              multiline
-              rows={3}
-              fullWidth
-            />
-          </Tooltip>
-
+          {reports.length === 0 ? (
+            <p>لا توجد تقارير حالياً.</p>
+          ) : (
+            <ReportTable reports={reports} />
+          )}
           {/* Submit Button */}
           <Button
             type="submit"
@@ -224,3 +238,26 @@ const ReportForm = ({
 };
 
 export default ReportForm;
+
+const ReportTable = ({ reports }: { reports: any[] }) => (
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell>تاريخ الختم</TableCell>
+        <TableCell>عدد الصفحات</TableCell>
+        <TableCell>المؤلف</TableCell>
+        <TableCell>الكتب المقروءة</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {reports.map((report) => (
+        <TableRow key={report._id}>
+          <TableCell>{report.readingDate}</TableCell>
+          <TableCell>{report.totalPagesRead}</TableCell>
+          <TableCell>{report.author}</TableCell>
+          <TableCell>{report.bookName}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+);

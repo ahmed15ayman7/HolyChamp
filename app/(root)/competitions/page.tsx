@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { VictoryLine, VictoryPie, VictoryChart, VictoryTheme } from "victory";
+import moment from "moment-hijri";
+import "moment/locale/ar";
+moment.locale("ar");
 
 const PageCompetitions = () => {
   const [readingProgressData, setReadingProgressData] = useState([
@@ -15,6 +18,7 @@ const PageCompetitions = () => {
     { x: string; y: number }[]
   >([]);
   const [participantsData, setParticipantsData] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(10); // عدد العناصر المراد عرضها
 
   useEffect(() => {
     // Fetch data from the API
@@ -27,7 +31,7 @@ const PageCompetitions = () => {
         // Map data for VictoryLine
         setReadingProgressData(
           readingProgressData.map((item: any) => ({
-            x: item.readingDate,
+            x: moment(item.readingDate, "iYYYY-iMM-iDD").format("dddd"),
             y: item.totalPagesRead,
           }))
         );
@@ -44,13 +48,15 @@ const PageCompetitions = () => {
 
         // Map participants data
         setParticipantsData(
-          participantsData.map((participant: any) => ({
-            name: participant.name,
-            booksRead: participant.DailyReport.reduce(
-              (sum: number, report: any) => sum + report.finishedBooks,
-              0
-            ),
-          }))
+          participantsData
+            .map((participant: any) => ({
+              name: participant.name,
+              booksRead: participant.DailyReport.reduce(
+                (sum: number, report: any) => sum + report.finishedBooks,
+                0
+              ),
+            }))
+            .sort((a: any, b: any) => b.booksRead - a.booksRead)
         );
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -61,10 +67,10 @@ const PageCompetitions = () => {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto p-8 bg-[#FAF3E0] rounded-lg shadow-xl">
+    <div className="max-w-full p-8 bg-[#FAF3E0] rounded-lg shadow-xl">
       {/* Title Section */}
       <header className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-[#1E3A8A]">
+        <h1 className="text-4xl font-bold text-[#a5960a]">
           فليتنافس المتنافسون
         </h1>
         <p className="mt-3 text-lg text-[#4A4A4A]">
@@ -76,7 +82,7 @@ const PageCompetitions = () => {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {/* Left - Reading Challenge Progress */}
         <div className="p-6 bg-white rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold text-[#1E3A8A]">
+          <h2 className="text-xl font-semibold text-[#a5960a]">
             تقدم التحدي القرائي
           </h2>
           <VictoryPie
@@ -85,14 +91,14 @@ const PageCompetitions = () => {
             innerRadius={100}
             labelRadius={120}
             style={{
-              labels: { fontSize: 16, fill: "#1E3A8A", fontWeight: "bold" },
+              labels: { fontSize: 16, fill: "#a5960a", fontWeight: "bold" },
             }}
           />
         </div>
 
         {/* Right - Reading Progress over 5 Days */}
         <div className="p-6 bg-white rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold text-[#1E3A8A]">
+          <h2 className="text-xl font-semibold text-[#a5960a]">
             تقدمك في الأيام الخمسة الماضية
           </h2>
           <VictoryChart theme={VictoryTheme.material}>
@@ -109,25 +115,39 @@ const PageCompetitions = () => {
 
       {/* Bottom Section - Participant Achievements */}
       <section className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold text-[#1E3A8A] mb-4">
+        <h2 className="text-2xl font-semibold text-[#a5960a] mb-4">
           إنجازات المشاركين
         </h2>
         <table className="min-w-full bg-white">
           <thead>
-            <tr className="text-[#1E3A8A]">
+            <tr className="text-[#a5960a]">
               <th className="px-4 py-2 text-right">اسم المشترك</th>
               <th className="px-4 py-2 text-right">عدد الكتب المقروءة</th>
             </tr>
           </thead>
           <tbody>
-            {participantsData.map((participant: any, index) => (
-              <tr key={index} className="border-t">
-                <td className="px-4 py-2">{participant.name}</td>
-                <td className="px-4 py-2">{participant.booksRead}</td>
-              </tr>
-            ))}
+            {participantsData
+              .slice(0, visibleCount)
+              .map((participant: any, index) => (
+                <tr key={index} className="border-t">
+                  <td className="px-4 py-2">{participant.name}</td>
+                  <td className="px-4 py-2">{participant.booksRead}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
+
+        {/* عرض المزيد */}
+        {visibleCount < participantsData.length && (
+          <div className="text-center mt-4">
+            <button
+              onClick={() => setVisibleCount(visibleCount + 10)}
+              className="px-4 py-2  bg-[#a5960a] text-[#ffffff]  hover:bg-[#cec258] rounded-md transition"
+            >
+              عرض المزيد
+            </button>
+          </div>
+        )}
       </section>
     </div>
   );

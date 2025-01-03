@@ -76,6 +76,7 @@ export async function POST(request: Request) {
         readingChallenge: user.readingChallenge,
         isPreviousParticipant: user.isPreviousParticipant,
         role: user.role, // Include the role in the cookie
+        missedPages: user.missedPages, // Include the role in the cookie
       }),
       {
         httpOnly: false, // Accessible from the client-side

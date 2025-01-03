@@ -91,7 +91,6 @@ const ArticleSubmissionPage = () => {
   return (
     <Box
       sx={{
-        maxWidth: 800,
         mx: "auto",
         p: 4,
         bgcolor: "#FAF3E0",
@@ -101,7 +100,7 @@ const ArticleSubmissionPage = () => {
     >
       <Typography
         variant="h4"
-        sx={{ mb: 4, color: "#1E3A8A", fontWeight: "bold" }}
+        sx={{ mb: 4, color: "#a5960a", fontWeight: "bold" }}
       >
         المقالات
       </Typography>
@@ -110,8 +109,8 @@ const ArticleSubmissionPage = () => {
         variant="contained"
         onClick={() => setDialogOpen(true)}
         sx={{
-          bgcolor: "#1E3A8A",
-          "&:hover": { bgcolor: "#163567" },
+          bgcolor: "#a5960a",
+          "&:hover": { bgcolor: "#cec258" },
           mb: 3,
         }}
       >
@@ -125,7 +124,7 @@ const ArticleSubmissionPage = () => {
             key={index}
             className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
           >
-            <h3 className="text-xl font-semibold text-[#1E3A8A]">
+            <h3 className="text-xl font-semibold text-[#a5960a]">
               {article.title}
             </h3>
             <p className="text-sm text-[#4A4A4A] mt-3">{article.content}</p>
@@ -196,7 +195,7 @@ const ArticleSubmissionPage = () => {
         <DialogActions>
           <Button
             onClick={() => setDialogOpen(false)}
-            sx={{ color: "#1E3A8A", fontWeight: "bold" }}
+            sx={{ color: "#a5960a", fontWeight: "bold" }}
           >
             إلغاء
           </Button>
@@ -205,8 +204,8 @@ const ArticleSubmissionPage = () => {
             disabled={loading}
             variant="contained"
             sx={{
-              bgcolor: "#1E3A8A",
-              "&:hover": { bgcolor: "#163567" },
+              bgcolor: "#a5960a",
+              "&:hover": { bgcolor: "#cec258" },
             }}
           >
             {loading ? (

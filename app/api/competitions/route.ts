@@ -1,6 +1,6 @@
 // /app/api/competitions/route.ts
 import { NextResponse } from "next/server";
-import {prisma} from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -13,7 +13,7 @@ export async function GET() {
     });
 
     const readingChallengeData = await prisma.dailyReport.groupBy({
-      by: ['userId'],
+      by: ["userId"],
       _count: {
         id: true, // عدد الكتب المقروءة
       },
@@ -28,8 +28,12 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ readingProgressData, readingChallengeData, participantsData });
-  } catch (error:any) {
+    return NextResponse.json({
+      readingProgressData,
+      readingChallengeData,
+      participantsData,
+    });
+  } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -107,3 +107,27 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function PATCH(request: Request) {
+  const { userId, type } = await request.json();
+
+  try {
+    if (userId) {
+      await prisma.user.update({
+        where: { id: userId, gender: type },
+        data: { missedPages: 0 },
+      });
+    } else {
+      await prisma.user.updateMany({
+        data: { missedPages: 0 },
+      });
+    }
+
+    return NextResponse.json({ message: "Missed pages reset successfully" });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to reset missed pages" },
+      { status: 500 }
+    );
+  }
+}

@@ -5,6 +5,25 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: Request) {
   const data: DailyReport = await request.json();
   try {
+    let userId = data.userId;
+    let totalPagesRead = data.totalPagesRead;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Calculate remaining missed pages
+    let remainingMissedPages = user.missedPages - totalPagesRead;
+    if (remainingMissedPages < 0) remainingMissedPages = 0;
+
+    // Update missed pages
+    await prisma.user.update({
+      where: { id: userId },
+      data: { missedPages: remainingMissedPages },
+    });
     const report = await prisma.dailyReport.create({ data });
     return NextResponse.json(report, { status: 201 });
   } catch (error: any) {

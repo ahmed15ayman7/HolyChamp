@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState ,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   AppBar,
@@ -51,15 +51,29 @@ const Header: React.FC = () => {
   ];
 
   const navItems2: NavItem[] = [
-    { title: "الرئيسية",subItems:[{ title: "الرئيسية", href: "/" },{ title: "التقارير القرائية", href: "/reading-reports" },
     {
-      title: "إضافة كتاب",
-      href: "/add-book",
+      title: "الرئيسية",
+      subItems: [
+        { title: "الرئيسية", href: "/" },
+        { title: "التقارير القرائية", href: "/reading-reports" },
+        {
+          title: "إضافة كتاب",
+          href: "/add-book",
+        },
+        { title: "فليتنافس المتنافسون", href: "/competitions" },
+        { title: "سموط المعارف", href: "/articles" },
+      ],
     },
-    { title: "فليتنافس المتنافسون", href: "/competitions" },
-    { title: "سموط المعارف", href: "/articles" },]},
-    { title: "الادارة",subItems:[{ title: "الادارة", href: "/admin"}
-    ,{ title: "المقالات", href: "/articles-admin" },{ title: " المقالات المعلقة", href: "/articles-pending" },] },    
+    {
+      title: "الادارة",
+      subItems: [
+        { title: "الادارة", href: "/admin" },
+        { title: "المقالات", href: "/articles-admin" },
+        { title: "فوائت الرجال", href: "/male-users" },
+        { title: "فوائت النساء", href: "/female-users" },
+        { title: " المقالات المعلقة", href: "/articles-pending" },
+      ],
+    },
   ];
   useEffect(() => {
     getUser();
