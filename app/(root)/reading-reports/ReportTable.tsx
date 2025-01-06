@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { getUserData } from "@/lib/actions/user.action";
+import { User } from "@/interfaces";
+import { IconButton, Tooltip } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { toast } from "react-toastify";
 
 // Define the type for a single report
 interface Report {
+  id: number; // Hijri Date
   date: string; // Hijri Date
   readerName: string;
   challenge: number;
@@ -12,11 +18,24 @@ interface Report {
   bookOfTheDay: string;
 }
 
-const ReportTable = ({ isFe }: { isFe: number }) => {
+const ReportTable = ({
+  isFe,
+  setIsFe,
+}: {
+  isFe: number;
+  setIsFe: (i: number) => void;
+}) => {
   const [reports, setReports] = useState<Report[][]>([]); // State to store reports
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
-
+  const [user, setUser] = useState<User>();
+  let getUser = async () => {
+    let user = await getUserData();
+    setUser(user);
+  };
+  useEffect(() => {
+    getUser();
+  }, []);
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -40,7 +59,27 @@ const ReportTable = ({ isFe }: { isFe: number }) => {
     return (
       <p className="text-center text-gray-500">لا توجد بيانات لعرضها حاليًا.</p>
     );
-
+  const deleteReport = async (id: number) => {
+    const toastId = toast.loading("جاري حذف التقرير...");
+    try {
+      await axios.delete(`/api/daily-reports?id=${id}`);
+      toast.update(toastId, {
+        render: "تم حذف التقرير بنجاح!",
+        autoClose: 3000,
+        isLoading: false,
+        type: "success",
+      });
+      setIsFe(Math.random());
+    } catch (error) {
+      console.error("خطأ في حذف التقرير:", error);
+      toast.update(toastId, {
+        autoClose: 3000,
+        isLoading: false,
+        type: "error",
+        render: "فشل في حذف التقرير!",
+      });
+    }
+  };
   return (
     <div className="overflow-x-auto mt-6">
       <table className="min-w-full table-auto border-collapse border border-gray-300">
@@ -55,6 +94,9 @@ const ReportTable = ({ isFe }: { isFe: number }) => {
             </th>
             <th className="px-4 py-2 border border-gray-300">الفوائت</th>
             <th className="px-4 py-2 border border-gray-300">كتاب اليوم</th>
+            {!loading && user?.role === "admin" && (
+              <th className="px-4 py-2 border border-gray-300"> </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -89,6 +131,18 @@ const ReportTable = ({ isFe }: { isFe: number }) => {
                 <td className="px-4 py-2 border border-gray-300 text-center">
                   {report.bookOfTheDay}
                 </td>
+                {!loading && user?.role === "admin" && (
+                  <td className="px-4 py-2 border border-gray-300 text-center">
+                    <Tooltip title="حذف التقرير">
+                      <IconButton
+                        color="error"
+                        onClick={() => deleteReport(report.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </td>
+                )}
               </tr>
             ))
           )}

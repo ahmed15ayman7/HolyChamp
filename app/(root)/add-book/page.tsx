@@ -142,17 +142,12 @@ const AddBook = () => {
             required
           />
         </Tooltip>
-        <Tooltip title="تصنيف الكتاب" arrow>
-          <TextField
-            fullWidth
-            label="تصنيف الكتاب"
+          <input
+            type="hidden"
             name="category"
-            value={formData.category}
+            value={"علمي"}
             onChange={handleChange}
-            margin="normal"
-            required
           />
-        </Tooltip>
         <Tooltip title="اسم المؤلف" arrow>
           <TextField
             fullWidth

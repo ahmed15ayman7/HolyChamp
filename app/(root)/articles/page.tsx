@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
+import ArticleList from "@/components/shared/ArticleList";
 import {
   TextField,
   Button,
@@ -26,8 +27,8 @@ import { User } from "@/interfaces";
 import Link from "next/link";
 const articleSchema = z.object({
   title: z.string().min(3, "يجب أن يكون العنوان أطول من 3 أحرف"),
-  summary: z.string().min(10, "يجب أن يكون الملخص أطول من 10 أحرف"),
-  content: z.string().min(50, "يجب أن يكون المحتوى أطول من 50 حرفًا"),
+  summary: z.string().min(1, "يجب أن يكون الملخص أطول من 1 أحرف"),
+  content: z.string().min(1, "يجب أن يكون المحتوى أطول من 1 حرفًا"),
   author: z.string().min(2, "اسم المؤلف مطلوب"),
 });
 
@@ -119,23 +120,7 @@ const ArticleSubmissionPage = () => {
 
       {/* Articles List */}
       <List>
-        {articles.map((article: any, index) => (
-          <div
-            key={index}
-            className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-          >
-            <h3 className="text-xl font-semibold text-[#a5960a]">
-              {article.title}
-            </h3>
-            <p className="text-sm text-[#4A4A4A] mt-3">{article.content}</p>
-            {/* <Link
-              href={"/articles"}
-              className="text-[#FFD700] hover:underline mt-4 inline-block"
-            >
-              اقرأ المزيد
-            </Link> */}
-          </div>
-        ))}
+        <ArticleList articles={articles}/>
       </List>
 
       {/* Dialog for the Form */}

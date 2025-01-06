@@ -30,6 +30,9 @@ export async function GET(req: Request) {
     if (id) {
       const article = await prisma.article.findUnique({
         where: { id: Number(id) },
+        include: {
+          user: true,
+        },
       });
       if (!article) {
         return NextResponse.json(

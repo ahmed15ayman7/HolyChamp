@@ -76,6 +76,7 @@ export async function GET() {
 
       // إضافة التقرير إلى تقارير المستخدم
       userData.formattedReports.push({
+        id: report.id,
         date: report.readingDate, // تاريخ القراءة
         readerName: report.user.name, // اسم القارئ
         challenge: userData.formattedReports.length + 1, // التحدي
@@ -114,13 +115,21 @@ export async function PUT(request: Request) {
 
 // حذف تقرير يومي
 export async function DELETE(request: Request) {
-  const { id } = await request.json();
+  const sercUrl = new URL(request.url);
+  let id = sercUrl.searchParams.get("id");
   try {
-    await prisma.dailyReport.delete({ where: { id } });
-    return NextResponse.json(
-      { message: "Daily report deleted successfully" },
-      { status: 200 }
-    );
+    if (id) {
+      await prisma.dailyReport.delete({ where: { id: +id } });
+      return NextResponse.json(
+        { message: "Daily report deleted successfully" },
+        { status: 200 }
+      );
+    } else {
+      return NextResponse.json(
+        { error: "Daily report deleted faild notfound id" },
+        { status: 500 }
+      );
+    }
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -5,7 +5,7 @@ import axios from "axios";
 import { getUserData } from "@/lib/actions/user.action";
 import { User } from "@/interfaces";
 import { toast } from "react-toastify";
-
+import ArticleList from "@/components/shared/ArticleList";
 const ArticlesPendingPage = () => {
   const [userData, setUserData] = useState<User>();
 
@@ -100,8 +100,18 @@ const ArticlesPendingPage = () => {
                   >
                     <div>
                       <h4 className="text-xl font-bold">{article.title}</h4>
-                      <p className="text-sm text-gray-600">{article.summary}</p>
+                      <div className="text-sm text-[#6B7280] mt-2">
+              <p>بقلم: <span className="text-[#4A4A4A] font-medium">{article.author || article.user.name}</span></p>
+              <p>تاريخ النشر: <span className="text-[#4A4A4A]">{new Date(article.createdAt).toLocaleDateString("ar-EG")}</span></p>
+            </div>
+                      <p className="text-sm text-gray-600"><strong>الملخص</strong>{article.summary}</p>
+
                     </div>
+                    <div
+                className="text-sm text-[#4A4A4A] mt-3 overflow-hidden transition-all duration-500 ease-in-out"
+              >
+               <strong>المقال</strong> {article.content}
+              </div>
                     <div className="flex gap-4">
                       <button
                         className="bg-[#28A745] text-white py-2 px-4 rounded hover:bg-[#218838]"
@@ -142,8 +152,18 @@ const ArticlesPendingPage = () => {
                   >
                     <div>
                       <h4 className="text-xl font-bold">{article.title}</h4>
-                      <p className="text-sm text-gray-600">{article.summary}</p>
+                      <div className="text-sm text-[#6B7280] mt-2">
+              <p>بقلم: <span className="text-[#4A4A4A] font-medium">{article.author || article.user.name}</span></p>
+              <p>تاريخ النشر: <span className="text-[#4A4A4A]">{new Date(article.createdAt).toLocaleDateString("ar-EG")}</span></p>
+            </div>
+                      <p className="text-sm text-gray-600"><strong>الملخص</strong>{article.summary}</p>
                     </div>
+                    <div
+                className="text-sm text-[#4A4A4A] mt-3 overflow-hidden transition-all duration-500 ease-in-out"
+              >
+                <strong>المقال</strong>{article.content}
+          
+              </div>
                     <div className="flex gap-4">
                       <button
                         className="bg-[#28A745] text-white py-2 px-4 rounded hover:bg-[#218838]"

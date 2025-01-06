@@ -5,7 +5,7 @@ import axios from "axios";
 import { getUserData } from "@/lib/actions/user.action";
 import { User } from "@/interfaces";
 import { toast } from "react-toastify";
-
+import ArticleList from "@/components/shared/ArticleList";
 export default function ArticlesPage() {
   const [userData, setUserData] = useState<User>();
   const [doneArticlesMen, setDoneArticlesMen] = useState([]);
@@ -66,33 +66,7 @@ export default function ArticlesPage() {
           <div>
             <h3 className="text-2xl font-bold text-[#a5960a]">مقالات الرجال</h3>
             {doneArticlesMen.length > 0 ? (
-              <ul className="mt-4 space-y-4">
-                {doneArticlesMen.map((article: any) => (
-                  <li
-                    key={article.id}
-                    className="p-4 bg-white rounded-lg shadow flex justify-between items-center"
-                  >
-                    <div>
-                      <h4 className="text-xl font-bold">{article.title}</h4>
-                      <p className="text-sm text-gray-600">{article.summary}</p>
-                    </div>
-                    <div className="flex gap-4">
-                      {/* <button
-                    className="bg-[#FF5733] text-white py-2 px-4 rounded hover:bg-[#C0392B]"
-                    onClick={() => handleApproval(article.id, "rejected")}
-                  >
-                    رفض
-                  </button> */}
-                      <button
-                        className="bg-[#FF0000] text-white py-2 px-4 rounded hover:bg-[#CC0000]"
-                        onClick={() => handleDelete(article.id)}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                      <ArticleList articles={doneArticlesMen}/>
             ) : (
               <p className="mt-4 text-gray-600">لا توجد مقالات للرجال.</p>
             )}
@@ -102,33 +76,7 @@ export default function ArticlesPage() {
           <div>
             <h3 className="text-2xl font-bold text-[#a5960a]">مقالات النساء</h3>
             {doneArticlesWomen.length > 0 ? (
-              <ul className="mt-4 space-y-4">
-                {doneArticlesWomen.map((article: any) => (
-                  <li
-                    key={article.id}
-                    className="p-4 bg-white rounded-lg shadow flex justify-between items-center"
-                  >
-                    <div>
-                      <h4 className="text-xl font-bold">{article.title}</h4>
-                      <p className="text-sm text-gray-600">{article.summary}</p>
-                    </div>
-                    <div className="flex gap-4">
-                      {/* <button
-                    className="bg-[#FF5733] text-white py-2 px-4 rounded hover:bg-[#C0392B]"
-                    onClick={() => handleApproval(article.id, "rejected")}
-                  >
-                    رفض
-                  </button> */}
-                      <button
-                        className="bg-[#FF0000] text-white py-2 px-4 rounded hover:bg-[#CC0000]"
-                        onClick={() => handleDelete(article.id)}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                     <ArticleList articles={doneArticlesWomen}/>
             ) : (
               <p className="mt-4 text-gray-600">لا توجد مقالات للنساء.</p>
             )}

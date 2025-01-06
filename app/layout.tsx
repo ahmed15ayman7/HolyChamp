@@ -4,7 +4,7 @@ import "./globals.css";
 import InfintyProvider from "@/components/providers/InfintyProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "@/utils/cron"
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",

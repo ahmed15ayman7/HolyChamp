@@ -35,7 +35,7 @@ const ReadingReportsPage = () => {
       )}
 
       {/* Table to display reports */}
-      <ReportTable isFe={isFe} />
+      <ReportTable isFe={isFe} setIsFe={setIsFe} />
     </div>
   );
 };
