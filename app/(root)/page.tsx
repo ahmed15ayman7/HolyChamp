@@ -99,21 +99,39 @@ const MainPage = () => {
       </header> */}
 
       {/* Articles or Announcements Section */}
-      <section className="space-y-8 flex justify-between max-sm:flex-col items-center mb-20 px-20 max-sm:px-5">
-        <div className="text-center text-[50px]">
-          <h1 className="text-[#a5960a]">
-            {!isLoading && data?.text ? data.text : headding}
-          </h1>
-        </div>
-        <div className="text-center">
-          <img
-            src={!isLoading && data?.url ? data.url : imageUrl}
-            alt="صوره المصحف"
-            className="w-60 h-60"
-          />
-        </div>
-      </section>
-      {user &&user?.role=="admin"&&<HomeForm refetch={refetch} />}
+      {
+        <section className="grid grid-cols-12 gap-4 mb-20 px-20 max-sm:px-5 pt-8">
+          <div className="md:col-span-6 md:justify-start col-span-12 text-center text-[50px]  flex justify-center items-center">
+            <h1 className="text-[#a5960a]">
+              {!isLoading && data?.text ? data.text : headding}
+            </h1>
+          </div>
+          <div className=" relative col-span-12 md:col-span-4 md:col-start-8 md:justify-center flex justify-center">
+            <div className="hidden md:block w-full mt-4 top-1/2 -translate-y-1/2 absolute">
+              <div className="h-6 rounded-s-full overflow-hidden -translate-x-9">
+                <div
+                  className="h-full bg-[#a5960a] "
+                  style={{ width: "90%" }}
+                ></div>
+              </div>
+              <div className="h-6 rounded-s-full overflow-hidden mt-12">
+                <div
+                  className="h-full  bg-[#a5950a30] "
+                  style={{ width: "100%" }}
+                ></div>
+              </div>
+            </div>
+
+            <img
+              src={!isLoading && data?.url ? data.url : imageUrl}
+              alt="صوره المصحف"
+              className="w-100 h-60 z-10"
+            />
+          </div>
+        </section>
+      }
+
+      {user && user?.role == "admin" && <HomeForm refetch={refetch} />}
       <section className="space-y-8">
         <h2 className="text-3xl font-semibold text-[#a5960a]">
           المقالات أو الإعلانات

@@ -77,11 +77,13 @@ const Profile = ({ setisLogin }: { setisLogin?: (id: boolean) => void }) => {
     queryFn: () => getUserData(),
   });
   useEffect(() => {
+    console.log("userData2", userData2);
+
     setUserData({
       id: userData2?.id || 10000,
       name:
         userData2?.gender == "female"
-          ? userData2?.title || userData2?.name || "لا يوجد اسم"
+          ? userData2?.title || "لا يوجد اسم"
           : userData2?.name || "Guest",
       phone: userData2?.phone || "0123456789",
       password: "",

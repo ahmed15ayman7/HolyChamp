@@ -14,6 +14,7 @@ export async function POST(req: Request) {
       region,
       readingChallenge,
       isPreviousParticipant,
+      title,
     } = await req.json();
     const existingUser = await prisma.user.findUnique({
       where: { phone },
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
         region,
         readingChallenge: readingChallenge === "yes" ? 1 : 0,
         isPreviousParticipant: isPreviousParticipant === "yes" ? true : false,
+        title,
       },
     });
 

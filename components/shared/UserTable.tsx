@@ -35,6 +35,8 @@ const UsersList = () => {
         );
         setUsers(response.data.users);
         setTotalUsers(response.data.total); // عدد المستخدمين الكلي
+        console.log("تم جلب المستخدمين بنجاح:", response.data.users);
+
         // toast.success("تم جلب المستخدمين بنجاح!");
       } catch (error) {
         console.error("خطأ في جلب المستخدمين:", error);

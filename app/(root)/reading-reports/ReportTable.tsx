@@ -25,7 +25,7 @@ const ReportTable = ({
   isFe: number;
   setIsFe: (i: number) => void;
 }) => {
-  const [reports, setReports] = useState<Report[][]>([]); // State to store reports
+  const [reports, setReports] = useState<Report[]>([]); // State to store reports
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
   const [user, setUser] = useState<User>();
@@ -39,8 +39,12 @@ const ReportTable = ({
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get<Report[][]>("/api/daily-reports");
-        setReports(response.data); // Update state with fetched data
+        const response = await axios.get<Report[]>("/api/daily-reports");
+        const flattenedReports = response.data.flat(); // Flatten the nested array
+        const sortedReports = flattenedReports.sort((a, b) =>
+          a.date.localeCompare(b.date)
+        ); // Sort the reports by date
+        setReports(sortedReports); // Update state with sorted data
       } catch (err: any) {
         setError(err.message); // Set error message
       } finally {
@@ -59,6 +63,7 @@ const ReportTable = ({
     return (
       <p className="text-center text-gray-500">لا توجد بيانات لعرضها حاليًا.</p>
     );
+
   const deleteReport = async (id: number) => {
     const toastId = toast.loading("جاري حذف التقرير...");
     try {
@@ -80,6 +85,25 @@ const ReportTable = ({
       });
     }
   };
+  //sort dates of report and grouping it by date and add color to every group
+  const generateDateColors = (dates: string[]): { [key: string]: string } => {
+    const uniqueDates = [...new Set(dates)];
+    const colors = [
+      "bg-red-100",
+      "bg-green-100",
+      "bg-blue-100",
+      "bg-yellow-100",
+      "bg-purple-100",
+    ];
+    return uniqueDates.reduce((acc, date, index) => {
+      acc[date] = colors[index % colors.length];
+      return acc;
+    }, {} as { [key: string]: string });
+  };
+  // Extract dates from reports
+  const dates = reports.map((report) => report.date);
+  // Generate colors for each date
+  const dateColors = generateDateColors(dates);
   return (
     <div className="overflow-x-auto mt-6">
       <table className="min-w-full table-auto border-collapse border border-gray-300">
@@ -100,52 +124,47 @@ const ReportTable = ({
           </tr>
         </thead>
         <tbody>
-          {reports.map((readerReports, readerIndex) =>
-            readerReports.map((report, index) => (
-              <tr
-                key={`${readerIndex}-${index}`}
-                className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+          {reports.map((report, index) => (
+            <tr key={report.id} className={dateColors[report.date]}>
+              <td className="px-4 py-2 border border-gray-300 text-center">
+                {report.readerName}
+              </td>
+              <td className="px-4 py-2 border border-gray-300 text-center">
+                {report.date}
+              </td>
+              <td className="px-4 py-2 border border-gray-300 text-center">
+                {report.challenge}
+              </td>
+              <td className="px-4 py-2 border border-gray-300 text-center">
+                {report.completedBooks}
+              </td>
+              <td className="px-4 py-2 border border-gray-300 text-center">
+                {report.pagesRead}
+              </td>
+              <td
+                className={`px-4 py-2 border border-gray-300 text-center ${
+                  report.missedPages > 0 ? "text-red-500" : "text-green-500"
+                }`}
               >
+                {report.missedPages}
+              </td>
+              <td className="px-4 py-2 border border-gray-300 text-center">
+                {report.bookOfTheDay}
+              </td>
+              {!loading && user?.role === "admin" && (
                 <td className="px-4 py-2 border border-gray-300 text-center">
-                  {report.readerName}
+                  <Tooltip title="حذف التقرير">
+                    <IconButton
+                      color="error"
+                      onClick={() => deleteReport(report.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
                 </td>
-                <td className="px-4 py-2 border border-gray-300 text-center">
-                  {report.date}
-                </td>
-                <td className="px-4 py-2 border border-gray-300 text-center">
-                  {report.challenge}
-                </td>
-                <td className="px-4 py-2 border border-gray-300 text-center">
-                  {report.completedBooks}
-                </td>
-                <td className="px-4 py-2 border border-gray-300 text-center">
-                  {report.pagesRead}
-                </td>
-                <td
-                  className={`px-4 py-2 border border-gray-300 text-center ${
-                    report.missedPages > 0 ? "text-red-500" : "text-green-500"
-                  }`}
-                >
-                  {report.missedPages}
-                </td>
-                <td className="px-4 py-2 border border-gray-300 text-center">
-                  {report.bookOfTheDay}
-                </td>
-                {!loading && user?.role === "admin" && (
-                  <td className="px-4 py-2 border border-gray-300 text-center">
-                    <Tooltip title="حذف التقرير">
-                      <IconButton
-                        color="error"
-                        onClick={() => deleteReport(report.id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </td>
-                )}
-              </tr>
-            ))
-          )}
+              )}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
