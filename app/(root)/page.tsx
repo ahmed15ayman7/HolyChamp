@@ -88,7 +88,7 @@ const MainPage = () => {
   !isLoading && console.log(data);
   return (
     <div
-      className="relative pb-14 border-blue-500 max-w-full p-6  bg-[#FAF3E0] rounded-lg shadow-xl"
+      className="relative pb-48 overflow-hidden border-blue-500 max-w-full p-6  bg-[#FAF3E0] rounded-lg shadow-xl"
       dir="rtl"
     >
       {
@@ -117,13 +117,13 @@ const MainPage = () => {
           </div>
           <div className=" relative col-span-12 md:col-span-4 md:col-start-8 md:justify-center flex justify-center">
             <div className=" w-full mt-4 top-1/2 -translate-y-1/2 absolute">
-              <div className="h-6 rounded-s-full overflow-hidden -translate-x-9">
+              <div className="h-6 rounded-s-full overflow-hidden -translate-x-10 animate-slideIn">
                 <div
                   className="h-full bg-[#a5960a] "
                   style={{ width: "90%" }}
                 ></div>
               </div>
-              <div className="h-6 rounded-s-full overflow-hidden mt-12">
+              <div className="h-6 rounded-s-full overflow-hidden mt-12 animate-slideInDelayed">
                 <div
                   className="h-full  bg-[#a5950a30] "
                   style={{ width: "100%" }}
@@ -140,6 +140,7 @@ const MainPage = () => {
         </section>
       }
 
+      {/* 
       {user && user?.role == "admin" && <HomeForm refetch={refetch} />}
       <section className="space-y-8">
         <h2 className="text-3xl font-semibold text-[#a5960a]">
@@ -164,7 +165,7 @@ const MainPage = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };
