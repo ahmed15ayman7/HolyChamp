@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       data: {
         name,
         phone,
-        password: hashedPassword,
+        password,
         gender,
         region,
         readingChallenge: readingChallenge === "yes" ? 1 : 0,

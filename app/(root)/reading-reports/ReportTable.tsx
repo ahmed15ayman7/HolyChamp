@@ -88,13 +88,7 @@ const ReportTable = ({
   //sort dates of report and grouping it by date and add color to every group
   const generateDateColors = (dates: string[]): { [key: string]: string } => {
     const uniqueDates = [...new Set(dates)];
-    const colors = [
-      "bg-red-100",
-      "bg-green-100",
-      "bg-blue-100",
-      "bg-yellow-100",
-      "bg-purple-100",
-    ];
+    const colors = ["bg-[#EAE6BF]", "bg-[#ffff]"];
     return uniqueDates.reduce((acc, date, index) => {
       acc[date] = colors[index % colors.length];
       return acc;

@@ -20,6 +20,9 @@ export interface User {
   role: string;
   createdAt?: Date; // يتم تحديدها تلقائيًا من قاعدة البيانات
   updatedAt?: Date; // يتم تحديثها تلقائيًا من قاعدة البيانات
+  title?: string;
+  phone?: string;
+  password?: string;
 }
 
 // تعريف نوع للتقرير اليومي (DailyReport)

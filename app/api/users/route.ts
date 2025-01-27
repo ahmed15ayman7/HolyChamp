@@ -44,7 +44,7 @@ export async function PUT(request: Request) {
     const hashedPassword = await bcrypt.hash(updates?.password, 10);
     const user = await prisma.user.update({
       where: { id },
-      data: { ...updates, password: hashedPassword },
+      data: { ...updates },
     });
     // Generate a JWT token
     const token = jwt.sign(
@@ -87,6 +87,7 @@ export async function PUT(request: Request) {
 
     return response;
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

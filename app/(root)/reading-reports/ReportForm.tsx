@@ -115,11 +115,12 @@ const ReportForm = ({
     try {
       setIsLoading(true);
       const validatedData = reportSchema.parse(data);
-
+      // مش رادي يستقبل ال بروبرتي بتاعة ال missing
       await axios.post("/api/daily-reports", {
         ...validatedData,
         finishedBooks: validatedData.finishedBooks === "yes" ? 1 : 0,
         userId: user?.id,
+
         totalPagesRead: parseInt(validatedData.totalPagesRead, 10),
         bookId: parseInt(validatedData.bookId),
       });
@@ -189,6 +190,19 @@ const ReportForm = ({
               {...register("totalPagesRead")}
               label="الصفحات المقروءة اليوم"
               type="number"
+              error={!!errors.totalPagesRead}
+              helperText={errors.totalPagesRead?.message}
+              fullWidth
+            />
+          </Tooltip>
+
+          {/* Pages misses Read */}
+          <Tooltip title="الفوائت" arrow>
+            <TextField
+              value={5}
+              disabled
+              label="الفوائت"
+              type="text"
               error={!!errors.totalPagesRead}
               helperText={errors.totalPagesRead?.message}
               fullWidth

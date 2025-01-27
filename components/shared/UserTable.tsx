@@ -15,6 +15,11 @@ import {
   Tooltip,
   Button,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
@@ -25,6 +30,9 @@ const UsersList = () => {
   const [page, setPage] = useState(1); // الصفحة الحالية
   const [rowsPerPage, setRowsPerPage] = useState(5); // عدد المستخدمين في كل صفحة
   const [totalUsers, setTotalUsers] = useState(0); // إجمالي عدد المستخدمين
+  const [selectedUser, setSelectedUser] = useState<User | null>(null); // المستخدم المحدد
+  const [dialogOpen, setDialogOpen] = useState(false); // حالة فتح/إغلاق الحوار
+  const [userData, setUserData] = useState<User | null>(null); // بيانات المستخدم
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -75,6 +83,42 @@ const UsersList = () => {
     }
   };
 
+  //!#########api call to get user data################
+  const userUpdate = (id: number) => {
+    for (let i = 1; i <= totalUsers; i++) {
+      const user = users.find((u) => u.id === id);
+      if (user) {
+        console.log("User found:", user);
+        setUserData(user);
+        setDialogOpen(true);
+        return;
+      }
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setUserData(null);
+    setDialogOpen(false);
+  };
+
+  const handleSubmit = async () => {
+    if (!userData) return;
+    console.log("userData", userData);
+
+    try {
+      //!#############aftr submit the new user data this is api calling to add the new data to DB############
+      await axios.put(`/api/users`, userData);
+      setUsers((prevUsers) =>
+        prevUsers.map((user) => (user.id === userData.id ? userData : user))
+      );
+      toast.success("تم تحديث بيانات المستخدم بنجاح!");
+      handleCloseDialog();
+    } catch (error) {
+      console.error("خطأ في تحديث بيانات المستخدم:", error);
+      toast.error("فشل في تحديث بيانات المستخدم!");
+    }
+  };
+
   if (loading) {
     return <p>جاري التحميل...</p>;
   }
@@ -86,24 +130,24 @@ const UsersList = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>رقم المستخدم</TableCell>
-              <TableCell>الاسم</TableCell>
-              <TableCell>رقم الهاتف</TableCell>
-              <TableCell>الدور</TableCell>
-              <TableCell>الإجراءات</TableCell>
+              <TableCell className="text-center">رقم المستخدم</TableCell>
+              <TableCell className="text-center">الاسم</TableCell>
+              <TableCell className="text-center">رقم الهاتف</TableCell>
+              <TableCell className="text-center">الدور</TableCell>
+              <TableCell className="text-center">الإجراءات</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.map((user: any) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.phone}</TableCell>
+              <TableRow className="text-center" key={user.id}>
+                <TableCell className="text-center">{user.id}</TableCell>
+                <TableCell className="text-center">{user.name}</TableCell>
+                <TableCell className="text-center">{user.phone}</TableCell>
                 <TableCell>
                   {user.role === "user" ? "مستخدم" : "مدير"}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-4 justify-end">
+                  <div className="flex items-center gap-4 justify-center">
                     <Tooltip
                       title={
                         user.role === "user" ? "ترقية لمدير" : "تحويل لمستخدم"
@@ -130,6 +174,17 @@ const UsersList = () => {
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
+                    <Tooltip title="عرض بيانات المستخدم">
+                      <Button
+                        variant="contained"
+                        color="info"
+                        onClick={() => {
+                          userUpdate(user.id);
+                        }}
+                      >
+                        عرض البيانات
+                      </Button>
+                    </Tooltip>
                   </div>
                 </TableCell>
               </TableRow>
@@ -137,7 +192,6 @@ const UsersList = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
       <div className="mt-4 flex justify-center">
         <Pagination
           count={Math.ceil(totalUsers / rowsPerPage)}
@@ -146,6 +200,78 @@ const UsersList = () => {
           color="primary"
         />
       </div>
+      {
+        //########dialog that will show the user data############
+      }
+      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>بيانات المستخدم</DialogTitle>
+        <DialogContent>
+          {userData && (
+            <div>
+              <TextField
+                label="رقم المستخدم"
+                value={userData.id}
+                disabled
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="الاسم"
+                value={userData.name}
+                onChange={(e) =>
+                  setUserData({ ...userData, name: e.target.value })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="اللقب"
+                value={userData.title}
+                onChange={(e) =>
+                  setUserData({ ...userData, title: e.target.value })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="رقم الهاتف"
+                value={userData.phone}
+                onChange={(e) =>
+                  setUserData({ ...userData, phone: e.target.value })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="كلمة المرور"
+                value={userData.password}
+                onChange={(e) =>
+                  setUserData({ ...userData, password: e.target.value })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="المنطقة"
+                value={userData.region}
+                onChange={(e) =>
+                  setUserData({ ...userData, region: e.target.value })
+                }
+                fullWidth
+                margin="normal"
+              />
+            </div>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            إغلاق
+          </Button>
+          <Button onClick={handleSubmit} color="primary">
+            حفظ
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

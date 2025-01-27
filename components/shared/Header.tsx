@@ -24,13 +24,11 @@ import { User } from "@prisma/client";
 interface NavItem {
   title: string;
   href?: string;
-  subItems?: NavItem[];
 }
 
 const Header: React.FC = () => {
   const [user, setUser] = useState<User>();
   const [drawerOpen, setDrawerOpen] = useState(false); // For Drawer on mobile
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null); // For handling hover on nav items
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -39,48 +37,22 @@ const Header: React.FC = () => {
     setUser(userData);
   };
 
-  const navItems1: NavItem[] = [
-    { title: "الرئيسية", href: "/" },
-    { title: "التقارير القرائية", href: "/reading-reports" },
-    {
-      title: "إضافة كتاب",
-      href: "/add-book",
-    },
-    { title: "فليتنافس المتنافسون", href: "/competitions" },
-    { title: "سموط المعارف", href: "/articles" },
-  ];
-
-  const navItems2: NavItem[] = [
-    {
-      title: "الرئيسية",
-      subItems: [
-        { title: "الرئيسية", href: "/" },
-        { title: "التقارير القرائية", href: "/reading-reports" },
-        {
-          title: "إضافة كتاب",
-          href: "/add-book",
-        },
-        { title: "فليتنافس المتنافسون", href: "/competitions" },
-        { title: "سموط المعارف", href: "/articles" },
-      ],
-    },
-    {
-      title: "الادارة",
-      subItems: [
-        { title: "الادارة", href: "/admin" },
-        { title: "المقالات", href: "/articles-admin" },
-        { title: "فوائت الرجال", href: "/male-users" },
-        { title: "فوائت النساء", href: "/female-users" },
-        { title: " المقالات المعلقة", href: "/articles-pending" },
-      ],
-    },
-  ];
   useEffect(() => {
     getUser();
   }, []);
 
-  const navItems: NavItem[] =
-    user && user.role === "admin" ? navItems2 : navItems1;
+  const navItems: NavItem[] = [
+    { title: "الرئيسية", href: "/" },
+    { title: "التقارير القرائية", href: "/reading-reports" },
+    { title: "إضافة كتاب", href: "/add-book" },
+    { title: "فليتنافس المتنافسون", href: "/competitions" },
+    { title: "سموط المعارف", href: "/articles" },
+    { title: "الادارة", href: "/admin" },
+    { title: "المقالات", href: "/articles-admin" },
+    { title: "فوائت الرجال", href: "/male-users" },
+    { title: "فوائت النساء", href: "/female-users" },
+    { title: " المقالات المعلقة", href: "/articles-pending" },
+  ];
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "#a5960a" }}>
@@ -108,61 +80,22 @@ const Header: React.FC = () => {
         {!isMobile && (
           <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
             {navItems.map((item) => (
-              <Box
-                key={item.title}
-                onMouseEnter={() => setHoveredItem(item.title)}
-                onMouseLeave={() => setHoveredItem(null)}
-                sx={{ position: "relative" }}
-              >
-                <Link href={item.href || "#"} passHref>
-                  <Tooltip title={item.title} arrow>
-                    <Box
-                      component="p"
-                      sx={{
-                        color: "#ffffff",
-                        textDecoration: "none",
-                        fontSize: "1rem",
-                        cursor: "pointer",
-                        "&:hover": { textDecoration: "underline" },
-                      }}
-                    >
-                      {item.title}
-                    </Box>
-                  </Tooltip>
-                </Link>
-                {item.subItems && hoveredItem === item.title && (
+              <Link key={item.title} href={item.href || "#"} passHref>
+                <Tooltip title={item.title} arrow>
                   <Box
+                    component="p"
                     sx={{
-                      position: "absolute",
-                      top: "100%",
-                      left: 0,
-                      backgroundColor: "#ffffff",
-                      color: "#000",
-                      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                      borderRadius: "4px",
-                      zIndex: 1000,
+                      color: "#ffffff",
+                      textDecoration: "none",
+                      fontSize: "1rem",
+                      cursor: "pointer",
+                      "&:hover": { textDecoration: "underline" },
                     }}
                   >
-                    {item.subItems.map((subItem) => (
-                      <Link
-                        key={subItem.title}
-                        href={subItem.href || "#"}
-                        passHref
-                      >
-                        <Box
-                          sx={{
-                            padding: "8px 16px",
-                            fontSize: "0.9rem",
-                            "&:hover": { backgroundColor: "#f0f0f0" },
-                          }}
-                        >
-                          {subItem.title}
-                        </Box>
-                      </Link>
-                    ))}
+                    {item.title}
                   </Box>
-                )}
-              </Box>
+                </Tooltip>
+              </Link>
             ))}
             <Profile />
           </Box>
@@ -209,20 +142,6 @@ const Header: React.FC = () => {
                           sx={{ color: "#ffffff", textAlign: "right" }}
                         />
                       </Link>
-                      {item.subItems && (
-                        <List sx={{ pl: 2 }}>
-                          {item.subItems.map((subItem) => (
-                            <ListItem key={subItem.title}>
-                              <Link href={subItem.href || "#"} passHref>
-                                <ListItemText
-                                  primary={subItem.title}
-                                  sx={{ color: "#ffffff", textAlign: "right" }}
-                                />
-                              </Link>
-                            </ListItem>
-                          ))}
-                        </List>
-                      )}
                     </ListItem>
                   ))}
                 </List>

@@ -24,3 +24,8 @@ body {
 h1 {
   font-family: "Reem Kufi", serif;
 }
+.topbanner {
+  background-image: url("/images/النقش للموقع[1].svg");
+  background-size: cover;
+  background-position: center;
+}

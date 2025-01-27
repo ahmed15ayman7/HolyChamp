@@ -30,12 +30,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check the password using bcrypt
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Check the password using bcrypt if it> 30 char
+
+    const isPasswordValid =
+      user.password.length > 30
+        ? await bcrypt.compare(password, user.password)
+        : password.trim() === user.password.trim();
 
     if (!isPasswordValid) {
       return NextResponse.json(
-        { message: "Invalid phone or password." },
+        {
+          message: "Invalid phone or password.",
+          password,
+          oldpassword: user.password,
+        },
         { status: 401 }
       );
     }

@@ -120,7 +120,7 @@ const ArticleSubmissionPage = () => {
 
       {/* Articles List */}
       <List>
-        <ArticleList articles={articles}/>
+        <ArticleList articles={articles} />
       </List>
 
       {/* Dialog for the Form */}
@@ -134,7 +134,7 @@ const ArticleSubmissionPage = () => {
                 label="العنوان"
                 fullWidth
                 error={!!errors.title}
-                helperText={`${errors.title}`}
+                // helperText={`${errors.title}`}
                 variant="outlined"
               />
             </Box>
@@ -147,7 +147,7 @@ const ArticleSubmissionPage = () => {
                 multiline
                 rows={3}
                 error={!!errors.summary}
-                helperText={`${errors.summary?.message}`}
+                // helperText={`${errors.summary?.message}`}
                 variant="outlined"
               />
             </Box>

@@ -87,7 +87,16 @@ const MainPage = () => {
     imageUrl = "/url.png";
   !isLoading && console.log(data);
   return (
-    <div className="max-w-full p-6 bg-[#FAF3E0] rounded-lg shadow-xl" dir="rtl">
+    <div
+      className="relative pb-14 border-blue-500 max-w-full p-6  bg-[#FAF3E0] rounded-lg shadow-xl"
+      dir="rtl"
+    >
+      {
+        <span className="topbanner absolute top-0 right-0 w-full py-3 p-2  text-white rounded-bl-lg rounded-tr-lg"></span>
+      }
+      {
+        <span className="topbanner absolute top-[98%] right-0 w-full py-3 p-2  text-white rounded-bl-lg rounded-tr-lg"></span>
+      }
       {/* Header Section */}
       {/* <header className="text-center mb-12">
         <h1 className="text-4xl font-extrabold text-[#a5960a] leading-tight">
@@ -107,7 +116,7 @@ const MainPage = () => {
             </h1>
           </div>
           <div className=" relative col-span-12 md:col-span-4 md:col-start-8 md:justify-center flex justify-center">
-            <div className="hidden md:block w-full mt-4 top-1/2 -translate-y-1/2 absolute">
+            <div className=" w-full mt-4 top-1/2 -translate-y-1/2 absolute">
               <div className="h-6 rounded-s-full overflow-hidden -translate-x-9">
                 <div
                   className="h-full bg-[#a5960a] "
@@ -140,12 +149,12 @@ const MainPage = () => {
           {articles.map((article, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
+              className="bg-white p-4  rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
             >
               <h3 className="text-xl font-semibold text-[#a5960a]">
                 {article.title}
               </h3>
-              <p className="text-sm text-[#4A4A4A] mt-3">{article.content}</p>
+              <p className="text-sm  text-[#4A4A4A] mt-3">{article.content}</p>
               <Link
                 href={"/articles"}
                 className="text-[#b6a43f] hover:underline mt-4 inline-block"
