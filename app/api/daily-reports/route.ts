@@ -134,3 +134,16 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+// حذف جميع التقارير اليومية
+export async function DELETE_ALL(request: Request) {
+  try {
+    await prisma.dailyReport.deleteMany({});
+    return NextResponse.json(
+      { message: "All daily reports deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

@@ -52,6 +52,8 @@ const Header: React.FC = () => {
     { title: "فوائت الرجال", href: "/male-users" },
     { title: "فوائت النساء", href: "/female-users" },
     { title: " المقالات المعلقة", href: "/articles-pending" },
+    { title: "بيانات المشتركين", href: "/user-data-male" },
+    { title: "بيانات المشتركات", href: "/user-data-female" },
   ];
 
   return (

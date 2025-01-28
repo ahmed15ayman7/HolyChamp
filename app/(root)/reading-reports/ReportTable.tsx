@@ -2,8 +2,18 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { getUserData } from "@/lib/actions/user.action";
 import { User } from "@/interfaces";
-import { IconButton, Tooltip } from "@mui/material";
+import {
+  IconButton,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { toast } from "react-toastify";
 
 // Define the type for a single report
@@ -29,17 +39,24 @@ const ReportTable = ({
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
   const [user, setUser] = useState<User>();
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null); // State to store the selected report
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false); // State to control dialog open/close
+
   let getUser = async () => {
     let user = await getUserData();
     setUser(user);
   };
+
   useEffect(() => {
     getUser();
   }, []);
+
   useEffect(() => {
     const fetchReports = async () => {
       try {
         const response = await axios.get<Report[]>("/api/daily-reports");
+        console.log("Fetched data:", response.data);
+
         const flattenedReports = response.data.flat(); // Flatten the nested array
         const sortedReports = flattenedReports.sort((a, b) =>
           a.date.localeCompare(b.date)
@@ -85,6 +102,40 @@ const ReportTable = ({
       });
     }
   };
+
+  const handleEditClick = (report: Report) => {
+    setSelectedReport(report);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setSelectedReport(null);
+  };
+
+  const handleDialogSubmit = async () => {
+    if (!selectedReport) return;
+    console.log("selectedReport", selectedReport);
+    //change the endpoint to update the report
+
+    try {
+      await axios.put(`/api/daily-reports`, selectedReport);
+      toast.success("تم تحديث التقرير بنجاح!");
+      setIsFe(Math.random());
+      handleDialogClose();
+    } catch (error) {
+      console.error("خطأ في تحديث التقرير:", error);
+      toast.error("فشل في تحديث التقرير!");
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!selectedReport) return;
+
+    const { name, value } = e.target;
+    setSelectedReport({ ...selectedReport, [name]: value });
+  };
+
   //sort dates of report and grouping it by date and add color to every group
   const generateDateColors = (dates: string[]): { [key: string]: string } => {
     const uniqueDates = [...new Set(dates)];
@@ -94,10 +145,12 @@ const ReportTable = ({
       return acc;
     }, {} as { [key: string]: string });
   };
+
   // Extract dates from reports
   const dates = reports.map((report) => report.date);
   // Generate colors for each date
   const dateColors = generateDateColors(dates);
+
   return (
     <div className="overflow-x-auto mt-6">
       <table className="min-w-full table-auto border-collapse border border-gray-300">
@@ -147,6 +200,14 @@ const ReportTable = ({
               </td>
               {!loading && user?.role === "admin" && (
                 <td className="px-4 py-2 border border-gray-300 text-center">
+                  <Tooltip title="تعديل التقرير">
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleEditClick(report)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title="حذف التقرير">
                     <IconButton
                       color="error"
@@ -161,6 +222,81 @@ const ReportTable = ({
           ))}
         </tbody>
       </table>
+
+      {/* Edit Report Dialog */}
+      <Dialog open={dialogOpen} onClose={handleDialogClose}>
+        <DialogTitle>تعديل التقرير</DialogTitle>
+        <DialogContent>
+          {selectedReport && (
+            <div>
+              <TextField
+                label="اسم القارئ"
+                name="readerName"
+                value={selectedReport.readerName}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="التاريخ الهجري"
+                name="date"
+                value={selectedReport.date}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="التحدي القرائي"
+                name="challenge"
+                value={selectedReport.challenge}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="الكتب المنجزة"
+                name="completedBooks"
+                value={selectedReport.completedBooks}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="الصفحات المقروءة"
+                name="pagesRead"
+                value={selectedReport.pagesRead}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="الفوائت"
+                name="missedPages"
+                value={selectedReport.missedPages}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="كتاب اليوم"
+                name="bookOfTheDay"
+                value={selectedReport.bookOfTheDay}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+            </div>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            إلغاء
+          </Button>
+          <Button onClick={handleDialogSubmit} color="primary">
+            حفظ
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
