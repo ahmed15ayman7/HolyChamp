@@ -38,7 +38,7 @@ const ReadingReportsPage = () => {
     const toastId = toast.loading("جاري حذف جميع التقارير...");
     try {
       //change the endpoint to delete all reports
-      await axios.delete("/api/daily-reports/all");
+      await axios.delete("/api/daily-reports/all__");
       toast.update(toastId, {
         render: "تم حذف جميع التقارير بنجاح!",
         autoClose: 3000,

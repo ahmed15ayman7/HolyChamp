@@ -47,11 +47,14 @@ const Header: React.FC = () => {
     { title: "إضافة كتاب", href: "/add-book" },
     { title: "فليتنافس المتنافسون", href: "/competitions" },
     { title: "سموط المعارف", href: "/articles" },
+  ];
+
+  const adminNavItems: NavItem[] = [
     { title: "الادارة", href: "/admin" },
     { title: "المقالات", href: "/articles-admin" },
     { title: "فوائت الرجال", href: "/male-users" },
     { title: "فوائت النساء", href: "/female-users" },
-    { title: " المقالات المعلقة", href: "/articles-pending" },
+    { title: "المقالات المعلقة", href: "/articles-pending" },
     { title: "بيانات المشتركين", href: "/user-data-male" },
     { title: "بيانات المشتركات", href: "/user-data-female" },
   ];
@@ -99,6 +102,25 @@ const Header: React.FC = () => {
                 </Tooltip>
               </Link>
             ))}
+            {user?.role === "admin" &&
+              adminNavItems.map((item) => (
+                <Link key={item.title} href={item.href || "#"} passHref>
+                  <Tooltip title={item.title} arrow>
+                    <Box
+                      component="p"
+                      sx={{
+                        color: "#ffffff",
+                        textDecoration: "none",
+                        fontSize: "1rem",
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      {item.title}
+                    </Box>
+                  </Tooltip>
+                </Link>
+              ))}
             <Profile />
           </Box>
         )}
@@ -146,6 +168,17 @@ const Header: React.FC = () => {
                       </Link>
                     </ListItem>
                   ))}
+                  {user?.role === "admin" &&
+                    adminNavItems.map((item) => (
+                      <ListItem key={item.title}>
+                        <Link href={item.href || "#"} passHref>
+                          <ListItemText
+                            primary={item.title}
+                            sx={{ color: "#ffffff", textAlign: "right" }}
+                          />
+                        </Link>
+                      </ListItem>
+                    ))}
                 </List>
               </Box>
             </Drawer>
