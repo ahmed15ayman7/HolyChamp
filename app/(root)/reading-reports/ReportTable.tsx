@@ -15,8 +15,9 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { toast } from "react-toastify";
+import ReportForm from "./ReportForm";
 
-// Define the type for a single report
+
 interface Report {
   id: number; // Hijri Date
   date: string; // Hijri Date
@@ -35,12 +36,13 @@ const ReportTable = ({
   isFe: number;
   setIsFe: (i: number) => void;
 }) => {
-  const [reports, setReports] = useState<Report[]>([]); // State to store reports
+  const [reports, setReports] = useState<any[]>([]); // State to store reports
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
   const [user, setUser] = useState<User>();
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null); // State to store the selected report
+  const [selectedReport, setSelectedReport] = useState<any | null>(null); // State to store the selected report
   const [dialogOpen, setDialogOpen] = useState<boolean>(false); // State to control dialog open/close
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   let getUser = async () => {
     let user = await getUserData();
@@ -54,11 +56,11 @@ const ReportTable = ({
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get<Report[]>("/api/daily-reports");
+        const response = await axios.get("/api/daily-reports");
         console.log("Fetched data:", response.data);
 
         const flattenedReports = response.data.flat(); // Flatten the nested array
-        const sortedReports = flattenedReports.sort((a, b) =>
+        const sortedReports = flattenedReports.sort((a: any, b: any) =>
           a.date.localeCompare(b.date)
         ); // Sort the reports by date
         setReports(sortedReports); // Update state with sorted data
@@ -102,10 +104,12 @@ const ReportTable = ({
       });
     }
   };
-
-  const handleEditClick = (report: Report) => {
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+  };
+  const handleEditClick = (report: any) => {
     setSelectedReport(report);
-    setDialogOpen(true);
+    setIsFormOpen(true);
   };
 
   const handleDialogClose = () => {
@@ -113,19 +117,26 @@ const ReportTable = ({
     setSelectedReport(null);
   };
 
-  const handleDialogSubmit = async () => {
+  const handleDialogSubmit = async (data:any,toastId:any) => {
     if (!selectedReport) return;
-    console.log("selectedReport", selectedReport);
-    //change the endpoint to update the report
-
     try {
-      await axios.put(`/api/daily-reports`, selectedReport);
-      toast.success("تم تحديث التقرير بنجاح!");
+      await axios.put(`/api/daily-reports`, {...data,bookId:+data.bookId,id:+data.id,totalPagesRead:+data.totalPagesRead,finishedBooks:data.finishedBooks === "yes" ? 1 : 0});
+      toast.update(toastId,{
+        render:"تم تحديث التقرير بنجاح!",
+        autoClose: 3000,
+        isLoading: false,
+        type: "success",
+      });
       setIsFe(Math.random());
-      handleDialogClose();
+      handleCloseForm();
     } catch (error) {
       console.error("خطأ في تحديث التقرير:", error);
-      toast.error("فشل في تحديث التقرير!");
+      toast.update(toastId,{
+        render:"فشل في تحديث التقرير!",
+        autoClose: 3000,
+        isLoading: false,
+        type: "error",
+      });
     }
   };
 
@@ -136,7 +147,6 @@ const ReportTable = ({
     setSelectedReport({ ...selectedReport, [name]: value });
   };
 
-  //sort dates of report and grouping it by date and add color to every group
   const generateDateColors = (dates: string[]): { [key: string]: string } => {
     const uniqueDates = [...new Set(dates)];
     const colors = ["bg-[#EAE6BF]", "bg-[#ffff]"];
@@ -222,9 +232,11 @@ const ReportTable = ({
           ))}
         </tbody>
       </table>
-
+      {isFormOpen && (
+        <ReportForm closeForm={handleCloseForm} setIsFe={setIsFe} report={selectedReport} handelUpdate={handleDialogSubmit} />
+      )}
       {/* Edit Report Dialog */}
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
+      {/* <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <DialogTitle>تعديل التقرير</DialogTitle>
         <DialogContent>
           {selectedReport && (
@@ -296,7 +308,7 @@ const ReportTable = ({
             حفظ
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

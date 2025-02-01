@@ -26,6 +26,7 @@ import moment from "moment-hijri";
 
 // Schema للتحقق من صحة البيانات
 const reportSchema = z.object({
+  id: z.string().optional(),
   readingDate: z.string().min(1, "تاريخ اليوم الهجري مطلوب"),
   bookId: z.string().min(1, "يجب اختيار كتاب"),
   totalPagesRead: z.string().min(1, "عدد الصفحات مطلوب"),
@@ -38,11 +39,16 @@ const reportSchema = z.object({
 const ReportForm = ({
   closeForm,
   setIsFe,
+  report,
+  handelUpdate,
 }: {
   closeForm: () => void;
   setIsFe: (i: number) => void;
+  report?: any;
+  handelUpdate?: (data: any,toastId:any)=>void;
 }) => {
   // Local States
+  console.log("report", report);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [user, setUser] = useState<User>();
@@ -52,14 +58,16 @@ const ReportForm = ({
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      readingDate: moment().format("iYYYY/iMM/iDD"), // تاريخ هجري تلقائي
-      bookId: "",
-      totalPagesRead: "",
-      notes: "",
-      finishedBooks: "no",
+      id: `${report?.id}` || undefined,
+      readingDate: report?.date as string || moment().format("iYYYY/iMM/iDD"), // تاريخ هجري تلقائي
+      bookId: `${report?.bookId}` || "",
+      totalPagesRead: `${report?.pagesRead}` || "",
+      notes: report?.notes as string || "",
+      finishedBooks: report?.completedBooks !== 0 ? "yes" : "no",
     },
   });
 
@@ -70,7 +78,7 @@ const ReportForm = ({
     const fetchReports = async () => {
       try {
         const response = await axios.get(
-          `/api/finished-books?userId=${user?.id}`
+          `/api/finished-books?userId=${report?.userId||user?.id}`
         );
         setReports(response.data);
       } catch (error) {
@@ -88,7 +96,7 @@ const ReportForm = ({
   const fetchBooks = async () => {
     if (!user) return setFetchTrigger((prev) => prev + 1);
     try {
-      const response = await axios.get(`/api/books?id=${user.id}`);
+      const response = await axios.get(`/api/books?id=${report?.userId||user?.id}`);
       setBooks(
         response.data.map((book: any) => ({
           id: book.id,
@@ -111,8 +119,12 @@ const ReportForm = ({
 
   // Form Submission
   const onSubmit = async (data: any) => {
-    const toastId = toast.loading("جاري إضافة التقرير...");
+    const toastId = toast.loading(report?"... جاري تحديث التقرير ":"جاري إضافة التقرير...",report ?{autoClose: 3000}:{});
     try {
+      if(report){
+        const validatedData = reportSchema.parse(data);
+        handelUpdate &&handelUpdate(validatedData,toastId);
+      }else{
       setIsLoading(true);
       const validatedData = reportSchema.parse(data);
       // مش رادي يستقبل ال بروبرتي بتاعة ال missing
@@ -120,7 +132,7 @@ const ReportForm = ({
         ...validatedData,
         finishedBooks: validatedData.finishedBooks === "yes" ? 1 : 0,
         userId: user?.id,
-
+        
         totalPagesRead: parseInt(validatedData.totalPagesRead, 10),
         bookId: parseInt(validatedData.bookId),
       });
@@ -131,15 +143,16 @@ const ReportForm = ({
         isLoading: false,
         autoClose: 3000,
       });
-
+      
       closeForm(); // Close the form after success
+    }
     } catch (error) {
       console.error("Error submitting report:", error);
       toast.update(toastId, {
         render:
-          error instanceof z.ZodError
-            ? "خطأ في البيانات المدخلة"
-            : "حدث خطأ أثناء الإضافة",
+        error instanceof z.ZodError
+        ? "خطأ في البيانات المدخلة"
+        : "حدث خطأ أثناء الإضافة",
         isLoading: false,
         type: "error",
         autoClose: 3000,
@@ -154,7 +167,17 @@ const ReportForm = ({
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
         <h2 className="text-xl font-semibold mb-4">إضافة تقرير قرائي</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          {/* Hijri Date Field */}
+          <Tooltip title="رقم التقرير" arrow>
+            <TextField
+              {...register("id")}
+              disabled
+              label=" رقم التقرير"
+              error={!!errors.id}
+              helperText={errors.id?.message}
+              fullWidth
+              />
+              </Tooltip>
+              {/* Hijri Date Field */}
           <Tooltip title="تاريخ اليوم الهجري" arrow>
             <TextField
               {...register("readingDate")}
@@ -167,10 +190,10 @@ const ReportForm = ({
           </Tooltip>
 
           {/* Book of the Day Field */}
-          <Tooltip title="كتاب اليوم" arrow>
+          <Tooltip title={report?.bookOfTheDay||"كتاب اليوم"} arrow>
             <FormControl fullWidth error={!!errors.bookId}>
               <InputLabel>كتاب اليوم</InputLabel>
-              <Select {...register("bookId")}>
+              <Select {...register("bookId")} defaultValue={getValues("bookId")} >
                 <MenuItem value="" disabled>
                   اختر الكتاب
                 </MenuItem>
@@ -213,7 +236,7 @@ const ReportForm = ({
           <Tooltip title="هل أنهيت الكتاب؟" arrow>
             <FormControl fullWidth>
               <InputLabel>هل أنهيت الكتاب؟</InputLabel>
-              <Select {...register("finishedBooks")}>
+              <Select {...register("finishedBooks")} defaultValue={getValues("finishedBooks")}>
                 <MenuItem value="no">لا</MenuItem>
                 <MenuItem value="yes">نعم</MenuItem>
               </Select>
@@ -233,7 +256,7 @@ const ReportForm = ({
             disabled={isLoading}
             fullWidth
           >
-            {isLoading ? <CircularProgress size={24} /> : "إضافة التقرير"}
+            {isLoading ? <CircularProgress size={24} /> : report?"تعديل": "إضافة التقرير"}
           </Button>
           <Button
             variant="contained"

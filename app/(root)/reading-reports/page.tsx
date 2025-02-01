@@ -37,8 +37,8 @@ const ReadingReportsPage = () => {
   const handleConfirmDelete = async () => {
     const toastId = toast.loading("جاري حذف جميع التقارير...");
     try {
-      //change the endpoint to delete all reports
-      await axios.delete("/api/daily-reports/all__");
+      // change the endpoint to delete all reports
+      await axios.delete("/api/daily-reports/all");
       toast.update(toastId, {
         render: "تم حذف جميع التقارير بنجاح!",
         autoClose: 3000,
@@ -72,12 +72,12 @@ const ReadingReportsPage = () => {
         >
           إضافة تقرير قرائي جديد
         </button>
-        <button
+        {/* <button
           onClick={handleOpenDialog}
           className="py-2 px-4 bg-red-600 text-[#ffffff] rounded-md hover:bg-red-800"
         >
           حذف جميع التقارير
-        </button>
+        </button> */}
       </div>
 
       {/* Show Form if Opened */}

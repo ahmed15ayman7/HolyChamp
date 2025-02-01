@@ -46,9 +46,12 @@ model User {
   isPreviousParticipant Boolean
   role                  String        @default("user") // Default role is "user"
   missedPages           Int           @default(0) // الصفحات الفائتة
+  excuse                String?
+  excuseStartDate       String?
+  excuseEndDate         String?
   DailyReport           DailyReport[]
 
-  Article Article[]
+  Article Article[] 
 
   Book Book[]
 }

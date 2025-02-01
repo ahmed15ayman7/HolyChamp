@@ -141,7 +141,7 @@ const UsersList = () => {
             {users.map((user: any) => (
               <TableRow className="text-center" key={user.id}>
                 <TableCell className="text-center">{user.id}</TableCell>
-                <TableCell className="text-center">{user.name}</TableCell>
+                <TableCell className="text-center">{user.name } ({user?.missedPages})</TableCell>
                 <TableCell className="text-center">{user.phone}</TableCell>
                 <TableCell>
                   {user.role === "user" ? "مستخدم" : "مدير"}

@@ -10,14 +10,15 @@ import {
   DialogActions,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import { DatePicker } from "@mui/lab";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css"; 
 
 interface User {
   id: number;
   name: string;
   gender: string;
-  pagesRead: number;
-  booksCompleted: number;
+  totalPagesRead: number;
+  finishedBooks: number;
   missedPages: number;
   excuse: string;
   excuseStartDate?: string;
@@ -35,12 +36,20 @@ export default function Page() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/api/users");
+        const response = await axios.get("/api/user?gender=female");
         console.log("Fetched data:", response.data);
-        const femaleUsers = response.data.filter(
-          (user: User) => user.gender === "female"
-        );
-        setUsers(femaleUsers);
+        const femaleUsers = response.data
+        setUsers(femaleUsers.map((user:any) => ({
+          id: user.id,
+          name: user.name,
+          gender: user.gender,
+          missedPages: user.missedPages,
+          excuse: user.excuse || undefined,
+          excuseStartDate: user.excuseStartDate || undefined,
+          excuseEndDate: user.excuseEndDate || undefined,
+          totalPagesRead: user.DailyReport.reduce((sum:number, report:any) => sum + report.totalPagesRead, 0),
+          finishedBooks: user.DailyReport.reduce((sum:number, report:any) => sum + report.finishedBooks, 0),
+        })));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -72,20 +81,27 @@ export default function Page() {
 
     try {
       //api for  user excuse
-      await axios.put(`/api/users/${selectedUser.id}`, {
+      const res = await axios.put(`/api/user`, {
         excuse,
-        // excuseStartDate,
-        // excuseEndDate,
+        id:selectedUser.id,
+        excuseStartDate,
+        excuseEndDate,
       });
-      // toast.success("تم حفظ العذر بنجاح!");
-      // setUsers((prevUsers) =>
-      //   prevUsers.map((user) =>
-      //     user.id === selectedUser.id
-      //       ? { ...user, excuse, excuseStartDate, excuseEndDate }
-      //       : user
-      //   )
-      // );
-      handleCloseDialog();
+      if (res.status==200){ toast.success("تم حفظ العذر بنجاح!");
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === selectedUser.id
+              ? {
+                  ...user,
+                  excuse,
+                  excuseStartDate: excuseStartDate ? excuseStartDate.toISOString().split('T')[0] : undefined,
+                  excuseEndDate: excuseEndDate ? excuseEndDate.toISOString().split('T')[0] : undefined
+                }
+              : user
+          )
+        );
+        handleCloseDialog();
+      }
     } catch (error) {
       console.error("Error saving excuse:", error);
       toast.error("فشل في حفظ العذر!");
@@ -119,10 +135,10 @@ export default function Page() {
                 {user.name}
               </td>
               <td className="px-4 py-2 border border-gray-300 text-center">
-                {user.pagesRead}
+                {user.totalPagesRead}
               </td>
               <td className="px-4 py-2 border border-gray-300 text-center">
-                {user.booksCompleted}
+                {user.finishedBooks}
               </td>
               <td className="px-4 py-2 border border-gray-300 text-center">
                 {user.missedPages}
@@ -143,11 +159,9 @@ export default function Page() {
           ))}
         </tbody>
       </table>
-
-      {/* Excuse Dialog */}
       <Dialog open={isDialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>إدخال عذر</DialogTitle>
-        <DialogContent>
+        <DialogContent className="p-20">
           <TextField
             label="العذر"
             value={excuse}
@@ -155,18 +169,21 @@ export default function Page() {
             fullWidth
             margin="normal"
           />
+          <div className="flex pt-10 gap-5">
+
           <DatePicker
-            label="تاريخ بدء العذر"
-            value={excuseStartDate}
-            // onChange={(date) => setExcuseStartDate(date)}
-            // renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-          />
+            selected={excuseStartDate}
+            onChange={(date) => setExcuseStartDate(date)}
+            dateFormat="yyyy/MM/dd" // You can adjust the format as needed
+            placeholderText="تاريخ بدء العذر"
+            />
           <DatePicker
-            label="تاريخ انتهاء العذر"
-            value={excuseEndDate}
-            // onChange={(date) => setExcuseEndDate(date)}
-            // renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-          />
+            selected={excuseEndDate}
+            onChange={(date) => setExcuseEndDate(date)}
+            dateFormat="yyyy/MM/dd" // You can adjust the format as needed
+            placeholderText="تاريخ انتهاء العذر"
+            />
+            </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">

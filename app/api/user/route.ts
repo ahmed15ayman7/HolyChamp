@@ -12,6 +12,15 @@ export async function GET(request: Request) {
           id: true,
           name: true,
           missedPages: true,
+          excuse: true,
+          excuseStartDate: true,
+          excuseEndDate: true,
+          DailyReport: {
+            select: {
+           finishedBooks: true,
+           totalPagesRead: true,
+            },
+          },
         },
       });
 
@@ -24,5 +33,24 @@ export async function GET(request: Request) {
       { error: "Failed to fetch users" },
       { status: 500 }
     );
+  }
+}
+export async function PUT(request: Request) {
+  const data = await request.json();
+  const { id, ...updates } = data;
+  try {
+    const user = await prisma.user.update({
+      where: { id },
+      data: { ...updates },
+    });
+    // Generate a JWT token
+
+    const response = NextResponse.json(user, { status: 200 });
+
+
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

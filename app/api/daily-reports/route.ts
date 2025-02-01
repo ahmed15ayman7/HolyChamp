@@ -84,6 +84,8 @@ export async function GET() {
         pagesRead: report.totalPagesRead, // عدد الصفحات المقروءة
         missedPages, // الصفحات الفائتة
         bookOfTheDay: report.book.name, // اسم الكتاب
+        bookId: report.book.id,
+        userId:report.userId // اسم الكتاب
       });
     });
 
@@ -135,15 +137,15 @@ export async function DELETE(request: Request) {
   }
 }
 
-// حذف جميع التقارير اليومية
-export async function DELETE_ALL(request: Request) {
-  try {
-    await prisma.dailyReport.deleteMany({});
-    return NextResponse.json(
-      { message: "All daily reports deleted successfully" },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
+// // حذف جميع التقارير اليومية
+// export async function DELETE_ALL(request: Request) {
+//   try {
+//     await prisma.dailyReport.deleteMany({});
+//     return NextResponse.json(
+//       { message: "All daily reports deleted successfully" },
+//       { status: 200 }
+//     );
+//   } catch (error: any) {
+//     return NextResponse.json({ error: error.message }, { status: 500 });
+//   }
+// }
