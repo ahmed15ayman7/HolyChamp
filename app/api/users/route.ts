@@ -41,7 +41,7 @@ export async function PUT(request: Request) {
   const data = await request.json();
   const { id, ...updates } = data;
   try {
-    const hashedPassword = await bcrypt.hash(updates?.password, 10);
+    // const hashedPassword = await bcrypt.hash(updates?.password, 10);
     const user = await prisma.user.update({
       where: { id },
       data: { ...updates },

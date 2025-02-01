@@ -16,6 +16,7 @@ export interface User {
   name: string;
   gender: string;
   region: string;
+
   readingChallenge: number; // تحدي القراءة الخاص بالمستخدم
   role: string;
   createdAt?: Date; // يتم تحديدها تلقائيًا من قاعدة البيانات
@@ -23,6 +24,7 @@ export interface User {
   title?: string;
   phone?: string;
   password?: string;
+  
 }
 
 // تعريف نوع للتقرير اليومي (DailyReport)
