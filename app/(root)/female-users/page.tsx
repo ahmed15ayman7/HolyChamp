@@ -72,7 +72,7 @@ export default function FemaleUsersPage() {
     let toastId = toast.loading("جاري تصفيير الفوائت للنساء ...");
     setIsLoadingR(true);
     try {
-      let user = await axios.put("/api/users");
+      let user = await axios.patch("/api/users", { type: "female" });
       user.status === 200
         ? toast.update(toastId, {
             render: "تم تصفير الفوائت لجميع النساء",

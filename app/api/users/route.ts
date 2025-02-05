@@ -120,6 +120,7 @@ export async function PATCH(request: Request) {
       });
     } else {
       await prisma.user.updateMany({
+        where: { gender: type },
         data: { missedPages: 0 },
       });
     }
