@@ -5,6 +5,9 @@ export async function POST() {
   try {
     // تحديث الصفحات الفائتة لجميع المستخدمين
     await prisma.user.updateMany({
+      where: {
+        excuse: undefined,
+      },
       data: {
         missedPages: {
           increment: 5, // إضافة 5 صفحات يوميًا

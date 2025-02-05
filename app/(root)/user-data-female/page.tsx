@@ -20,7 +20,7 @@ interface User {
   totalPagesRead: number;
   finishedBooks: number;
   missedPages: number;
-  excuse: string;
+  excuse: string| null|undefined;
   excuseStartDate?: string;
   excuseEndDate?: string;
 }
@@ -29,7 +29,7 @@ export default function Page() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [excuse, setExcuse] = useState("");
+  const [excuse, setExcuse] = useState<string | null>(null);
   const [excuseStartDate, setExcuseStartDate] = useState<Date | null>(null);
   const [excuseEndDate, setExcuseEndDate] = useState<Date | null>(null);
 
@@ -60,7 +60,7 @@ export default function Page() {
 
   const handleOpenDialog = (user: User) => {
     setSelectedUser(user);
-    setExcuse(user.excuse || "");
+    setExcuse(user.excuse || null);
     setExcuseStartDate(
       user.excuseStartDate ? new Date(user.excuseStartDate) : null
     );
@@ -71,7 +71,7 @@ export default function Page() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setSelectedUser(null);
-    setExcuse("");
+    setExcuse(null);
     setExcuseStartDate(null);
     setExcuseEndDate(null);
   };
@@ -112,7 +112,7 @@ export default function Page() {
     try {
       //api for  user excuse
       const res = await axios.put(`/api/user`, {
-        excuse: "",
+        excuse:undefined,
         id:user.id,
         excuseStartDate: null,
         excuseEndDate: null,
@@ -177,7 +177,7 @@ export default function Page() {
               </td>
               <td className="px-4 py-2 border border-gray-300 flex gap-4 justify-center">
                
-              {user?.excuse?.length>0 ? <Button
+              {user?.excuse &&user?.excuse?.length>0 ? <Button
                   variant="contained"
                   color="secondary"
                   onClick={() => handleCancelExcuse(user)}

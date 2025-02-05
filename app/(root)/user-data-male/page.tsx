@@ -110,6 +110,34 @@ export default function Page() {
       toast.error("فشل في حفظ العذر!");
     }
   };
+  const handleCancelExcuse = async (user: any) => {
+    try {
+      //api for  user excuse
+      const res = await axios.put(`/api/user`, {
+        excuse:undefined,
+        id:user.id,
+        excuseStartDate: null,
+        excuseEndDate: null,
+      });
+      if (res.status==200){ toast.success("تم إلغاء العذر بنجاح!");
+        setUsers((prevUsers) =>
+          prevUsers.map((u) =>
+            u.id === user.id
+              ? {
+                  ...u,
+                  excuse: "",
+                  excuseStartDate: undefined,
+                  excuseEndDate: undefined
+                }
+              : u
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error canceling excuse:", error);
+      toast.error("فشل في إلغاء العذر!");
+    }
+  };
 
   return (
     <div className="max-w-full p-6 bg-[#ffffff] rounded-lg shadow-lg">
@@ -150,13 +178,19 @@ export default function Page() {
                 {user.excuse}
               </td>
               <td className="px-4 py-2 border border-gray-300 text-center">
-                <Button
+              {user?.excuse &&user?.excuse?.length>0 ? <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleCancelExcuse(user)}
+                >
+                  إلغاء العذر
+                </Button>:<Button
                   variant="contained"
                   color="primary"
                   onClick={() => handleOpenDialog(user)}
                 >
                   إدخال عذر
-                </Button>
+                </Button>}
               </td>
             </tr>
           ))}
