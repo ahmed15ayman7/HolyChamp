@@ -108,6 +108,35 @@ export default function Page() {
     }
   };
 
+  const handleCancelExcuse = async (user: User) => {
+    try {
+      //api for  user excuse
+      const res = await axios.put(`/api/user`, {
+        excuse: "",
+        id:user.id,
+        excuseStartDate: null,
+        excuseEndDate: null,
+      });
+      if (res.status==200){ toast.success("تم إلغاء العذر بنجاح!");
+        setUsers((prevUsers) =>
+          prevUsers.map((u) =>
+            u.id === user.id
+              ? {
+                  ...u,
+                  excuse: "",
+                  excuseStartDate: undefined,
+                  excuseEndDate: undefined
+                }
+              : u
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error canceling excuse:", error);
+      toast.error("فشل في إلغاء العذر!");
+    }
+  };
+
   return (
     <div className="max-w-full p-6 bg-[#ffffff] rounded-lg shadow-lg overflow-hidden">
       <h1 className="text-3xl font-semibold text-[#a5960a] text-center mb-6">
@@ -125,7 +154,7 @@ export default function Page() {
             </th>
             <th className="px-4 py-2 border border-gray-300">عدد الفوائت</th>
             <th className="px-4 py-2 border border-gray-300">العذر</th>
-            <th className="px-4 py-2 border border-gray-300">إدخال عذر</th>
+            <th className="px-4 py-2 border border-gray-300">إدخال/إلغاء عذر</th>
           </tr>
         </thead>
         <tbody>
@@ -146,14 +175,21 @@ export default function Page() {
               <td className="px-4 py-2 border border-gray-300 text-center">
                 {user.excuse}
               </td>
-              <td className="px-4 py-2 border border-gray-300 text-center">
-                <Button
+              <td className="px-4 py-2 border border-gray-300 flex gap-4 justify-center">
+               
+              {user?.excuse?.length>0 ? <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleCancelExcuse(user)}
+                >
+                  إلغاء العذر
+                </Button>:<Button
                   variant="contained"
                   color="primary"
                   onClick={() => handleOpenDialog(user)}
                 >
                   إدخال عذر
-                </Button>
+                </Button>}
               </td>
             </tr>
           ))}
