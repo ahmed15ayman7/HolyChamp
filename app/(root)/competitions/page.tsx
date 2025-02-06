@@ -10,6 +10,7 @@ import {
 } from "victory";
 import moment from "moment-hijri";
 import "moment/locale/ar";
+import Loader from "@/components/shared/Loader";
 moment.locale("ar");
 
 const PageCompetitions = () => {
@@ -32,10 +33,12 @@ const PageCompetitions = () => {
     y: number;
     color: string;
   } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get("/api/competitions");
         const { readingProgressData, readingChallengeData, participantsData } =
           response.data;
@@ -82,8 +85,10 @@ const PageCompetitions = () => {
             }))
             .sort((a: any, b: any) => b.booksRead - a.booksRead)
         );
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setIsLoading(false);
       }
     };
 
@@ -91,6 +96,7 @@ const PageCompetitions = () => {
   }, []);
 
   return (
+    isLoading?<Loader/>:
     <div className="max-w-full p-8 bg-[#FAF3E0] rounded-lg shadow-xl">
       {/* Title Section */}
       <header className="text-center mb-12">
@@ -208,7 +214,7 @@ const PageCompetitions = () => {
         </div>
 
         {/* عرض المزيد */}
-        {visibleCount < participantsData.length && (
+        {/* {visibleCount < participantsData.length && (
           <div className="text-center mt-4">
             <button
               onClick={() => setVisibleCount(visibleCount + 10)}
@@ -217,7 +223,7 @@ const PageCompetitions = () => {
               عرض المزيد
             </button>
           </div>
-        )}
+        )} */}
       </section>
     </div>
   );

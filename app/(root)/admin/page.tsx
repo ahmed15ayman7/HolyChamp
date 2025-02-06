@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import AuthRegister from "@/app/(auth)/auth/AuthRegister";
-import axios from "axios";
-import { getUserData } from "@/lib/actions/user.action";
-import { User } from "@/interfaces";
+import { useState } from "react";
 import { toast } from "react-toastify";
+import axios from "axios";
+import AuthRegister from "@/app/(auth)/auth/AuthRegister";
 import UsersList from "@/components/shared/UserTable";
 import {
   Dialog,
@@ -15,106 +12,50 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
+import { FaFilePdf, FaFileAlt, FaUserPlus } from "react-icons/fa";
+
 const AdminPage = () => {
-  const [userData, setUserData] = useState<User>();
-  const [doneArticlesMen, setDoneArticlesMen] = useState([]);
-  const [doneArticlesWomen, setDoneArticlesWomen] = useState([]);
-  const [pendingArticlesMen, setPendingArticlesMen] = useState([]);
-  const [pendingArticlesWomen, setPendingArticlesWomen] = useState([]);
   const [open, setOpen] = useState(false);
   const [isFe, setIsFe] = useState(0);
-  const handleOpen = () => {
-    setOpen(true);
-  };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
-  let getUser = async () => {
-    let user = await getUserData();
-    setUserData(user);
-  };
-  const handleApproval = async (
-    articleId: string,
-    status: "approved" | "rejected"
-  ) => {
+  const handleExport = async (gender: string, format: string,isCompletedBooks:boolean) => {
+    const toastId = toast.loading("جاري التصدير ...");
+
     try {
-      await axios.put(`/api/articles`, { id: articleId, status });
-      toast.success(
-        `تم ${status === "approved" ? "الموافقة على" : "رفض"} المقال بنجاح.`
-      );
-      // تحديث البيانات بعد العملية
-      const updatedMen = pendingArticlesMen.filter(
-        (article: any) => article.id !== articleId
-      );
-      const updatedWomen = pendingArticlesWomen.filter(
-        (article: any) => article.id !== articleId
-      );
-      setPendingArticlesMen(updatedMen);
-      setPendingArticlesWomen(updatedWomen);
-    } catch (error) {
-      toast.error("حدث خطأ أثناء تحديث المقال:" + error);
-    }
-  };
+      const response = await axios.get(`/api/${isCompletedBooks ? "completed-books" : "readers"}?gender=${gender}&format=${format}`, {
+        responseType: format === "pdf" ? "blob" : "json",
+      });
 
-  const handleDelete = async (articleId: string) => {
-    try {
-      await axios.delete(`/api/articles?id=${articleId}`);
-      toast.success("تم حذف المقال بنجاح.");
-      // تحديث البيانات بعد الحذف
-      const updatedMen = pendingArticlesMen.filter(
-        (article: any) => article.id !== articleId
-      );
-      const updatedWomen = pendingArticlesWomen.filter(
-        (article: any) => article.id !== articleId
-      );
-      setPendingArticlesMen(updatedMen);
-      setPendingArticlesWomen(updatedWomen);
-      const updatedMend = doneArticlesMen.filter(
-        (article: any) => article.id !== articleId
-      );
-      const updatedWomend = doneArticlesWomen.filter(
-        (article: any) => article.id !== articleId
-      );
-      setDoneArticlesMen(updatedMend);
-      setDoneArticlesWomen(updatedWomend);
-    } catch (error) {
-      toast.error("حدث خطأ أثناء حذف المقال:" + error);
-      console.error("حدث خطأ أثناء حذف المقال:", error);
-    }
-  };
+      if (response.status === 200) {
+        if (format === "pdf") {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `readers_${gender}.${format}`);
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode?.removeChild(link);
+        }
 
-  useEffect(() => {
-    const fetchPendingArticles = async () => {
-      try {
-        // Fetch pending articles for men
-        const menResponse = await axios.get(
-          "/api/articles?status=pending&gender=male"
-        );
-        setPendingArticlesMen(menResponse.data);
-        // Fetch pending articles for women
-        const womenResponse = await axios.get(
-          "/api/articles?status=pending&gender=female"
-        );
-        setPendingArticlesWomen(womenResponse.data);
-        const menResponsed = await axios.get(
-          "/api/articles?status=approved&gender=male"
-        );
-        setDoneArticlesMen(menResponsed.data);
-
-        const womenResponsed = await axios.get(
-          "/api/articles?status=approved&gender=female"
-        );
-        setDoneArticlesWomen(womenResponsed.data);
-      } catch (error) {
-        console.error("Failed to fetch pending articles:", error);
+        toast.update(toastId, {
+          render: "تم تصدير البيانات بنجاح!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
       }
-    };
-
-    fetchPendingArticles();
-    getUser();
-  }, [isFe]);
+    } catch (error: any) {
+      toast.update(toastId, {
+        render: "حدث خطأ أثناء التصدير!",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    }
+  };
 
   return (
     <div className="max-w-full p-6 bg-[#FAF3E0] rounded-lg shadow-xl">
@@ -126,110 +67,141 @@ const AdminPage = () => {
           إدارة بيانات المشتركين والمحتوى.
         </p>
       </header>
-      <UsersList />
-      <div>
+
+      {/* قائمة المستخدمين */}
+      <UsersList isFe={isFe} />
+
+      {/* أزرار التصدير */}
+      <div className="mt-6 flex flex-wrap  gap-4">
         <Button
           variant="contained"
-          className=" bg-[#a5960a] text-[#ffffff]  hover:bg-[#cec258] "
+          className="bg-[#a5960a] text-white hover:bg-[#cec258] flex items-center gap-2"
           onClick={handleOpen}
         >
+          <FaUserPlus size={18} />
           إضافة مشترك جديد
         </Button>
-
-        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-          <DialogTitle>
-            <h2 className="text-2xl font-semibold text-[#a5960a]">
-              إضافة مشترك جديد
-            </h2>
-          </DialogTitle>
-
-          <DialogContent>
-            <AuthRegister isManage setIsFe={setIsFe} />
-          </DialogContent>
-
-          <DialogActions>
-            <Button onClick={handleClose} color="secondary">
-              إلغاء
+        </div>
+      <div className="mt-6 flex  flex-wrap justify-center  gap-20">
+        <div className="justify-center">
+        <h2 className="text-2xl font-semibold text-center  text-[#a5960a]">
+            تصدير بيانات المشتركين
+          </h2>
+        {/* أزرار تصدير البيانات */}
+        <div className="flex flex-col items-center ">
+          <h3 className="text-lg font-semibold text-gray-700">تصدير الذكور:</h3>
+          <div className="flex gap-3 mt-2">
+            <Button
+              variant="outlined"
+              className="border-[#a5960a] text-[#a5960a] hover:bg-[#a5960a] hover:text-white flex  gap-2"
+              onClick={() => handleExport("male", "json",false)}
+            >
+              <FaFileAlt size={18} />
+              JSON
             </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-
-      {/* Task Management (Pause Counters, Reset Missed Pages) */}
-      {/* Add functionality to pause counters and reset missed pages */}
-      {/* <section className="my-12">
-        <h2 className="text-3xl font-semibold text-[#a5960a] mb-6">
-          إدارة المهام
-        </h2>
-        <button className="w-full bg-[#FF5733] text-white py-3 rounded-lg hover:bg-[#C0392B] transition-all duration-300">
-          إيقاف العداد
-        </button>
-        <button className="w-full bg-[#FF5733] text-white py-3 rounded-lg hover:bg-[#C0392B] transition-all duration-300 mt-4">
-          حذف الفوائت
-        </button>
-      </section> */}
-
-      {/* Content Approval Section */}
-      {/* <section className="mb-12">
-        <h2 className="text-3xl font-semibold text-[#a5960a] mb-6">
-          موافقة على المقالات
-        </h2>
-        <button className="w-full bg-[#FFD700] text-[#a5960a] py-3 rounded-lg hover:bg-[#FFB600] transition-all duration-300">
-          نشر المقالات
-        </button>
-      </section> */}
-
-      {/* WhatsApp Group Messaging */}
-      {/* <section className="mb-12">
-        <h2 className="text-3xl font-semibold text-[#a5960a] mb-6">
-          رسائل المجموعة
-        </h2>
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-xl font-semibold text-[#a5960a]">
-              مجموعة الرجال
-            </h3>
-            <textarea
-              className="w-full p-4 rounded-lg border border-[#a5960a]"
-              placeholder="أسماء الرجال مع الفوائت"
-              rows={6}
-            />
-          </div>
-          <div>
-            <h3 className="text-xl font-semibold text-[#a5960a]">
-              مجموعة النساء
-            </h3>
-            <textarea
-              className="w-full p-4 rounded-lg border border-[#a5960a]"
-              placeholder="أسماء النساء مع الفوائت"
-              rows={6}
-            />
+            <Button
+              variant="outlined"
+              className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white flex  gap-2"
+              onClick={() => handleExport("male", "pdf",false)}
+            >
+              <FaFilePdf size={18} />
+              PDF
+            </Button>
           </div>
         </div>
-      </section> */}
-     
-      {/* Database Management */}
-      {/* <section className="mb-12">
-        <h2 className="text-3xl font-semibold text-[#a5960a] mb-6">
-          إدارة قاعدة البيانات
-        </h2>
-        <button className="w-full bg-[#FF5733] text-white py-3 rounded-lg hover:bg-[#C0392B] transition-all duration-300">
-          حذف البيانات
-        </button>
-        <button className="w-full bg-[#28A745] text-white py-3 rounded-lg hover:bg-[#218838] transition-all duration-300 mt-4">
-          تصدير البيانات
-        </button>
-      </section> */}
 
-      {/* Editable Reports Section */}
-      {/* <section className="mb-12">
-        <h2 className="text-3xl font-semibold text-[#a5960a] mb-6">
-          تعديل التقارير القرائية
-        </h2>
-        <button className="w-full bg-[#a5960a] text-white py-3 rounded-lg hover:bg-[#1A3163] transition-all duration-300">
-          تعديل التقارير
-        </button>
-      </section> */}
+        <div className="flex flex-col items-center ">
+          <h3 className="text-lg font-semibold text-gray-700">تصدير الإناث:</h3>
+          <div className="flex gap-3 mt-2">
+            <Button
+              variant="outlined"
+              className="border-[#a5960a] text-[#a5960a] hover:bg-[#a5960a] hover:text-white flex  gap-2"
+              onClick={() => handleExport("female", "json",false)}
+            >
+              <FaFileAlt size={18} />
+              JSON
+            </Button>
+            <Button
+              variant="outlined"
+              className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white flex  gap-2"
+              onClick={() => handleExport("female", "pdf",false)}
+            >
+              <FaFilePdf size={18} />
+              PDF
+            </Button>
+          </div>
+        </div>
+        </div>
+        <div className="justify-center">
+        <h2 className="text-2xl font-semibold text-center  text-[#a5960a]">
+            تصدير الكتب المختومه للمشتركين
+          </h2>
+        {/* أزرار تصدير البيانات */}
+
+        <div className="flex flex-col items-center ">
+          <h3 className="text-lg font-semibold text-gray-700">تصدير الذكور:</h3>
+          <div className="flex gap-3 mt-2">
+            <Button
+              variant="outlined"
+              className="border-[#a5960a] text-[#a5960a] hover:bg-[#a5960a] hover:text-white flex  gap-2"
+              onClick={() => handleExport("male", "json",true)}
+            >
+              <FaFileAlt size={18} />
+              JSON
+            </Button>
+            <Button
+              variant="outlined"
+              className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white flex  gap-2"
+              onClick={() => handleExport("male", "pdf",true)}
+            >
+              <FaFilePdf size={18} />
+              PDF
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center ">
+          <h3 className="text-lg font-semibold text-gray-700">تصدير الإناث:</h3>
+          <div className="flex gap-3 mt-2">
+            <Button
+              variant="outlined"
+              className="border-[#a5960a] text-[#a5960a] hover:bg-[#a5960a] hover:text-white flex  gap-2"
+              onClick={() => handleExport("female", "json",true)}
+            >
+              <FaFileAlt size={18} />
+              JSON
+            </Button>
+            <Button
+              variant="outlined"
+              className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white flex  gap-2"
+              onClick={() => handleExport("female", "pdf",true)}
+            >
+              <FaFilePdf size={18} />
+              PDF
+            </Button>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      {/* نافذة إضافة مشترك */}
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+        <DialogTitle>
+          <h2 className="text-2xl font-semibold text-[#a5960a]">
+            إضافة مشترك جديد
+          </h2>
+        </DialogTitle>
+
+        <DialogContent>
+          <AuthRegister isManage setIsFe={setIsFe} />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleClose} color="secondary">
+            إلغاء
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

@@ -16,9 +16,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { User } from "@prisma/client";
 
 // مخطط التحقق باستخدام Zod
 const registerSchema = z.object({
+  id:z.string().optional(),
   name: z.string().min(1, "الاسم مطلوب").nonempty("لا يمكن ترك الاسم فارغاً"),
   title: z.string().optional(),
   phone: z.string().min(2, "يجب إدخال رقم الهاتف"),
@@ -37,6 +39,7 @@ interface RegisterType {
   subtext?: JSX.Element | JSX.Element[];
   isManage?: boolean;
   setIsFe?: (i: number) => void;
+  user?: User;
 }
 
 const AuthRegister = ({
@@ -45,6 +48,7 @@ const AuthRegister = ({
   subtext,
   isManage,
   setIsFe,
+  user,
 }: RegisterType) => {
   const router = useRouter();
   let [isFemale, setIsFemale] = useState(false);
@@ -52,33 +56,35 @@ const AuthRegister = ({
     control,
     handleSubmit,
     formState: { errors },
+    getValues,
     reset,
   } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: "",
-      title: "",
-      phone: "",
-      password: "",
-      gender: "male",
-      region: "",
-      readingChallenge: "0",
-      isPreviousParticipant: "no",
+      id:user?.id.toString() || undefined,
+      name: user?.name || "",
+      title: user?.title || "",
+      phone: user?.phone || "",
+      password: user?.password || "",
+      gender: user?.gender as "male" | "female" | undefined || "male",
+      region:user?.region || "",
+      readingChallenge:user?.readingChallenge.toString() || "0",
+      isPreviousParticipant:user?.isPreviousParticipant==true?"yes":"no",
     },
   });
 
   const handleRegister = async (values: RegisterFormInputs) => {
-    const loadingToastId = toast.loading("جارٍ تسجيل المستخدم...");
+    const loadingToastId = toast.loading(user?.id?"جارٍ تحديث المستخدم...":"جارٍ تسجيل المستخدم...");
 
     try {
-      const res = await axios.post("/api/register", {
+      const res = user? await axios.put(`/api/user`, {...values,id:+values.id!,readingChallenge: +values.readingChallenge,isPreviousParticipant:values.isPreviousParticipant==="yes"?true:false}): await axios.post("/api/register", {
         ...values,
         readingChallenge: +values.readingChallenge,
       });
 
       if (res.status === 201) {
         toast.update(loadingToastId, {
-          render: "تم التسجيل بنجاح!    .",
+          render: user?.id ? "تم تحديث المستخدم بنجاح!    ." : "تم التسجيل بنجاح!    .",
           type: "success",
           isLoading: false,
           autoClose: 5000,
@@ -88,7 +94,7 @@ const AuthRegister = ({
         setIsFe && setIsFe(Math.random());
       } else if (res.status === 202) {
         toast.update(loadingToastId, {
-          render: res.data?.message || "فشل التسجيل. يرجى المحاولة مرة أخرى.",
+          render: res.data?.message || user?.id?"فشل التحديث. يرجى المحاولة مرة أخرى.":"فشل التسجيل. يرجى المحاولة مرة أخرى.",
           type: "error",
           isLoading: false,
           autoClose: 3000,
@@ -98,7 +104,7 @@ const AuthRegister = ({
       toast.update(loadingToastId, {
         render:
           (error as { message: string })?.message ||
-          "فشل التسجيل. يرجى المحاولة مرة أخرى.",
+        user?.id?"فشل التحديث. يرجى المحاولة مرة أخرى.":  "فشل التسجيل. يرجى المحاولة مرة أخرى.",
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -134,7 +140,7 @@ const AuthRegister = ({
               control={control}
               render={({ field }) => (
                 <FormControl fullWidth error={!!errors.gender}>
-                  <InputLabel>الجنس</InputLabel>
+                  {/* <InputLabel>الجنس</InputLabel> */}
                   <Select
                     {...field}
                     onChange={(e) => {
@@ -143,6 +149,7 @@ const AuthRegister = ({
                         ? setIsFemale(true)
                         : setIsFemale(false);
                     }}
+                    defaultValue={getValues("gender")}
                     variant="outlined"
                     fullWidth
                   >
@@ -323,7 +330,7 @@ const AuthRegister = ({
               control={control}
               render={({ field }) => (
                 <FormControl fullWidth error={!!errors.isPreviousParticipant}>
-                  <Select {...field} variant="outlined">
+                  <Select {...field} variant="outlined" defaultValue={getValues("isPreviousParticipant")}>
                     <MenuItem value={"yes"}>نعم</MenuItem>
                     <MenuItem value={"no"}>لا</MenuItem>
                   </Select>
@@ -342,7 +349,7 @@ const AuthRegister = ({
           fullWidth
           type="submit"
         >
-          تسجيل
+         {user?.id ? "تحديث" : "تسجيل"} 
         </Button>
       </form>
       {subtitle}

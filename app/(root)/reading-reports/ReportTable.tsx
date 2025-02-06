@@ -5,12 +5,6 @@ import { User } from "@/interfaces";
 import {
   IconButton,
   Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -80,7 +74,7 @@ const ReportTable = ({
     return <p className="text-center text-red-500">حدث خطأ: {error}</p>;
   if (reports.length === 0)
     return (
-      <p className="text-center text-gray-500">لا توجد بيانات لعرضها حاليًا.</p>
+      <p className="text-center text-gray-500">لا توجد تقارير لعرضها حاليًا.</p>
     );
 
   const deleteReport = async (id: number) => {

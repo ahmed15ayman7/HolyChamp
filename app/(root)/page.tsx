@@ -7,6 +7,7 @@ import { User } from "@/interfaces";
 import axios from "axios";
 import HomeForm from "@/components/forms/HomeForm";
 import { useQuery } from "@tanstack/react-query";
+import Loader from "@/components/shared/Loader";
 
 const LandingPage = () => {
   const [showMainPage, setShowMainPage] = useState(false);
@@ -24,33 +25,7 @@ const LandingPage = () => {
     return <MainPage />;
   }
 
-  return (
-    <div
-      className="w-full h-screen flex items-center justify-center bg-cover bg-center"
-      // style={{
-      //   backgroundImage: "url('/images/back.svg')", // Path to your background SVG
-      //   backgroundSize: "cover",
-      //   backgroundPosition: "center",
-      // }}
-      dir="rtl" // Set the direction to RTL
-    >
-      {/* Spinner Container */}
-      <div className="relative w-32 h-32 flex items-center justify-center">
-        {/* Circular Spinner with Gradient */}
-        <div
-          className="absolute border-8 border-transparent rounded-full w-full h-full animate-spin 
-                        from-[#FFD700] via-[#FF8C00] to-[#FF6347] bg-gradient-to-r"
-        ></div>
-
-        {/* Logo Image (SVG) */}
-        <img
-          src="/images/الشعار فقط.svg" // Path to your logo SVG
-          alt="Logo"
-          className="w-16 h-16 z-10" // Keep the logo size fixed and ensure it's above the spinner
-        />
-      </div>
-    </div>
-  );
+  return <Loader />;
 };
 
 const MainPage = () => {
@@ -87,33 +62,9 @@ const MainPage = () => {
     imageUrl = "/url.png";
   !isLoading && console.log(data);
   return (
-    isLoading ?  <div
-    className="w-full h-screen flex items-center justify-center bg-cover bg-center"
-    // style={{
-    //   backgroundImage: "url('/images/back.svg')", // Path to your background SVG
-    //   backgroundSize: "cover",
-    //   backgroundPosition: "center",
-    // }}
-    dir="rtl" // Set the direction to RTL
-  >
-    {/* Spinner Container */}
-    <div className="relative w-32 h-32 flex items-center justify-center">
-      {/* Circular Spinner with Gradient */}
-      <div
-        className="absolute border-8 border-transparent rounded-full w-full h-full animate-spin 
-                      from-[#FFD700] via-[#FF8C00] to-[#FF6347] bg-gradient-to-r"
-      ></div>
-
-      {/* Logo Image (SVG) */}
-      <img
-        src="/images/الشعار فقط.svg" // Path to your logo SVG
-        alt="Logo"
-        className="w-16 h-16 z-10" // Keep the logo size fixed and ensure it's above the spinner
-      />
-    </div>
-  </div> :
+    isLoading ?  <Loader /> :
     <div
-      className="relative pb-48 overflow-hidden border-blue-500 max-w-full p-6  bg-[#FAF3E0] rounded-lg shadow-xl"
+      className="relative max-sm:pb-4 pb-44 overflow-hidden border-blue-500 max-w-full p-6 pt-10  bg-[#FAF3E0] rounded-lg shadow-xl"
       dir="rtl"
     >
       {

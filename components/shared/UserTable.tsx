@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { User } from "@/interfaces";
 import {
   Table,
   TableBody,
@@ -23,8 +22,10 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
+import AuthRegister from "@/app/(auth)/auth/AuthRegister";
+import { User } from "@prisma/client";
 
-const UsersList = () => {
+const UsersList = ({ isFe }: { isFe: number }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1); // الصفحة الحالية
@@ -33,7 +34,7 @@ const UsersList = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null); // المستخدم المحدد
   const [dialogOpen, setDialogOpen] = useState(false); // حالة فتح/إغلاق الحوار
   const [userData, setUserData] = useState<User | null>(null); // بيانات المستخدم
-
+  const [isFe2, setIsFe] = useState(0);
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -55,7 +56,7 @@ const UsersList = () => {
     };
 
     fetchUsers();
-  }, [page, rowsPerPage]);
+  }, [page, rowsPerPage,isFe,isFe2]);
 
   const updateRole = async (id: number, role: string) => {
     try {
@@ -204,72 +205,19 @@ const UsersList = () => {
         //########dialog that will show the user data############
       }
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>بيانات المستخدم</DialogTitle>
+        <DialogTitle>
+          <h2 className="text-2xl font-semibold text-[#a5960a]">
+            بيانات المستخدم
+          </h2>
+        </DialogTitle>
         <DialogContent>
-          {userData && (
-            <div>
-              <TextField
-                label="رقم المستخدم"
-                value={userData.id}
-                disabled
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="الاسم"
-                value={userData.name}
-                onChange={(e) =>
-                  setUserData({ ...userData, name: e.target.value })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="اللقب"
-                value={userData.title}
-                onChange={(e) =>
-                  setUserData({ ...userData, title: e.target.value })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="رقم الهاتف"
-                value={userData.phone}
-                onChange={(e) =>
-                  setUserData({ ...userData, phone: e.target.value })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="كلمة المرور"
-                value={userData.password}
-                onChange={(e) =>
-                  setUserData({ ...userData, password: e.target.value })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="المنطقة"
-                value={userData.region}
-                onChange={(e) =>
-                  setUserData({ ...userData, region: e.target.value })
-                }
-                fullWidth
-                margin="normal"
-              />
-            </div>
-          )}
+      {  userData &&  <AuthRegister user={userData} isManage setIsFe={setIsFe} />}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
-            إغلاق
+            الغاء
           </Button>
-          <Button onClick={handleSubmit} color="primary">
-            حفظ
-          </Button>
+
         </DialogActions>
       </Dialog>
     </div>

@@ -35,7 +35,7 @@ const AddBook = () => {
   // Schema للتحقق من البيانات باستخدام Zod
   const bookSchema = z.object({
     name: z.string().min(3, "اسم الكتاب يجب أن يكون 3 أحرف على الأقل"),
-    category: z.string().min(3, "تصنيف الكتاب يجب أن يكون 3 أحرف على الأقل"),
+    category: z.string().optional(),
     author: z.string().min(3, "اسم المؤلف يجب أن يكون 3 أحرف على الأقل"),
     publisher: z.string().min(3, "دار النشر يجب أن يكون 3 أحرف على الأقل"),
     edition: z.string().min(1, "الطبعة مطلوبة"),

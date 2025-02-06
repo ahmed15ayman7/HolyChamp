@@ -25,7 +25,7 @@ model Book {
   userId      Int
   author      String
   publisher   String
-  category    String
+  category    String?
   edition     String
   editionYear String
   totalPages  Int

@@ -60,7 +60,7 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#a5960a" }}>
+    <AppBar position="sticky" sx={{ backgroundColor: "#a5960a" }}>
       <Toolbar sx={{ justifyContent: "space-between" }}>
         {/* Logo */}
         <Link href="/" passHref>

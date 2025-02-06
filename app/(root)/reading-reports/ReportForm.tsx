@@ -167,8 +167,8 @@ const ReportForm = ({
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
         <h2 className="text-xl font-semibold mb-4">إضافة تقرير قرائي</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <Tooltip title="رقم التقرير" arrow>
-            <TextField
+         {  report&&    <Tooltip title="رقم التقرير" arrow>
+       <TextField
               {...register("id")}
               disabled
               label=" رقم التقرير"
@@ -176,7 +176,7 @@ const ReportForm = ({
               helperText={errors.id?.message}
               fullWidth
               />
-              </Tooltip>
+              </Tooltip>}
               {/* Hijri Date Field */}
           <Tooltip title="تاريخ اليوم الهجري" arrow>
             <TextField
@@ -244,7 +244,10 @@ const ReportForm = ({
           </Tooltip>
 
           {reports.length === 0 ? (
-            <p>لا توجد تقارير حالياً.</p>
+            <p>
+                    لم يُنجز كتاب بعد
+
+            </p>
           ) : (
             <ReportTable reports={reports} />
           )}
@@ -288,7 +291,7 @@ const ReportTable = ({ reports }: { reports: any[] }) => (
     </TableHead>
     <TableBody>
       {reports.map((report) => (
-        <TableRow key={report._id}>
+        <TableRow key={report.id}>
           <TableCell>{report.readingDate}</TableCell>
           <TableCell>{report.totalPagesRead}</TableCell>
           <TableCell>{report.author}</TableCell>

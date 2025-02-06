@@ -45,7 +45,7 @@ export async function PUT(request: Request) {
     });
     // Generate a JWT token
 
-    const response = NextResponse.json(user, { status: 200 });
+    const response = NextResponse.json(user, { status: 201 });
 
 
     return response;
