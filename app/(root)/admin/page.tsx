@@ -12,7 +12,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { FaFilePdf, FaFileAlt, FaUserPlus } from "react-icons/fa";
+import { FaFilePdf, FaFileAlt, FaUserPlus, FaTrash } from "react-icons/fa";
 
 const AdminPage = () => {
   const [open, setOpen] = useState(false);
@@ -56,6 +56,30 @@ const AdminPage = () => {
       });
     }
   };
+  const handelDeleteAll = async (e: any) => {
+    e.preventDefault();
+    const toastId = toast.loading("جاري حذف جميع البيانات ...");
+
+    try {
+      const response = await axios.delete(`/api/all`);
+
+      if (response.status === 200) {
+        toast.update(toastId, {
+          render: "تم حذف جميع البيانات بنجاح!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      }
+    } catch (error: any) {
+      toast.update(toastId, {
+        render: "حدث خطأ أثناء حذف جميع البيانات!",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    }
+  };
 
   return (
     <div className="max-w-full p-6 bg-[#FAF3E0] rounded-lg shadow-xl">
@@ -72,7 +96,7 @@ const AdminPage = () => {
       <UsersList isFe={isFe} />
 
       {/* أزرار التصدير */}
-      <div className="mt-6 flex flex-wrap  gap-4">
+      <div className="mt-6 flex flex-wrap justify-between  gap-4">
         <Button
           variant="contained"
           className="bg-[#a5960a] text-white hover:bg-[#cec258] flex items-center gap-2"
@@ -80,6 +104,14 @@ const AdminPage = () => {
         >
           <FaUserPlus size={18} />
           إضافة مشترك جديد
+        </Button>
+        <Button
+          variant="contained"
+          className="bg-[#e92a2a] text-white hover:bg-[#d43b3b] flex items-center gap-2"
+          onClick={handelDeleteAll}
+        >
+          <FaTrash size={18} />
+          حذف جميع البيانات
         </Button>
         </div>
       <div className="mt-6 flex  flex-wrap justify-center  gap-20">

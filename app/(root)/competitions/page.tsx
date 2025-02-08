@@ -66,13 +66,11 @@ const PageCompetitions = () => {
 
         setReadingProgressData(progressData);
 
-        const totalBooks = readingChallengeData.reduce(
-          (acc: number, curr: any) => acc + curr._count.id,
-          0
-        );
+        const totalBooks = readingChallengeData?.length;
+        const totalBooksRead = readingChallengeData?.filter((item: any) => item.finishedBooks > 0).length;
         setReadingChallengeData([
-          { x: "مجموع الكتب", y: totalBooks + 10 },
-          { x: "الكتب المقروءة", y: totalBooks - 5 }, // Example
+          { x: "مجموع الكتب", y: totalBooks },
+          { x: "الكتب المقروءة", y: totalBooksRead },
         ]);
         setParticipantsData(
           participantsData

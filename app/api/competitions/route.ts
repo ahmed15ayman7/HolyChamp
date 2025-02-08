@@ -12,11 +12,8 @@ export async function GET() {
       },
     });
 
-    const readingChallengeData = await prisma.dailyReport.groupBy({
-      by: ["userId"],
-      _count: {
-        id: true, // عدد الكتب المقروءة
-      },
+    const readingChallengeData = await prisma.dailyReport.findMany({
+
     });
 
     const participantsData = await prisma.user.findMany({
